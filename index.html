@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>HRYAK_ANIME // 01</title>
+<title>HRYAK_ANIME // LIVE_DB</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;user-select:none}
@@ -16,20 +16,22 @@ body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-heigh
 canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1}
 #pig-bg{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.35;animation:pig 4s infinite}
 #pig-bg svg{width:min(82vw,620px);filter:drop-shadow(-7px 0 0 #ff003c) drop-shadow(7px 0 0 #00f0ff)}
-#main{position:relative;z-index:10;display:none;max-width:1100px;margin:0 auto;padding:30px 20px 60px}
-.top{display:flex;flex-wrap:wrap;gap:15px;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff;padding-bottom:15px;box-shadow:0 4px 0 #ff003c}
-h1{font-size:26px;letter-spacing:3px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
-#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:260px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
-.card{background:rgba(10,10,12,.86);border:1px solid #444;padding:16px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff;transition:.15s}
+#main{position:relative;z-index:10;display:none;max-width:1150px;margin:0 auto;padding:30px 20px 60px}
+.top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff;padding-bottom:15px;box-shadow:0 4px 0 #ff003c}
+h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
+.sbox{display:flex;gap:8px}
+#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:240px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
+#sb{padding:10px 18px;background:#fff;color:#000;font-weight:900;font-family:inherit;border:none;cursor:pointer;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
+#sb:hover{background:#ff003c;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.card{background:rgba(10,10,12,.88);border:1px solid #444;padding:12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff;transition:.15s}
 .card:hover{transform:translateY(-4px);border-color:#fff}
-.tag{font-size:11px;color:#00f0ff;margin-bottom:6px}
-.ttl{font-size:18px;font-weight:900;margin-bottom:10px;line-height:1.25}
-.rt{display:flex;gap:8px;margin-bottom:14px;font-size:13px;font-weight:700}
-.rt span{padding:3px 7px;background:#16161a;border:1px solid #333}
-.sh{color:#00ff88}.kp{color:#ffaa00}
+.poster{width:100%;height:260px;object-fit:cover;margin-bottom:10px;border:1px solid #333}
+.ttl{font-size:16px;font-weight:900;margin-bottom:8px;line-height:1.25}
+.rt{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;font-weight:700;color:#00ff88}
 .go{display:block;text-align:center;padding:10px;background:#fff;color:#000;font-weight:900;text-decoration:none;letter-spacing:2px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
 .go:hover{background:#ff003c;color:#fff}
+#st{text-align:center;padding:30px;font-size:18px;color:#00f0ff;display:none}
 @keyframes g{0%{box-shadow:-7px 0 0 #ff003c,7px 0 0 #00f0ff}50%{box-shadow:7px -3px 0 #00ff41,-7px 3px 0 #ff003c}100%{box-shadow:-6px 2px 0 #00f0ff,6px -2px 0 #ff003c}}
 @keyframes pig{0%,94%,100%{transform:translate(0) scale(1)}96%{transform:translate(-6px,2px) scale(1.02)}98%{transform:translate(6px,-2px) scale(.99)}}
 </style>
@@ -52,25 +54,12 @@ h1{font-size:26px;letter-spacing:3px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </svg>
 </div>
 <div id="main">
-<div class="top"><h1>HRYAK_ARCHIVE // ANIME</h1><input id="q" placeholder="Поиск аниме..." oninput="render()"></div>
+<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Naruto..." onkeydown="if(event.key==='Enter')loadAnime()"><button id="sb" onclick="loadAnime()">НАЙТИ</button></div></div>
+<div id="st">ЗАГРУЗКА ИЗ АРХИВА...</div>
 <div class="grid" id="grid"></div>
 </div>
 <script>
-const DB=[
-{t:"Атака титанов",g:"Экшен / Драма",sh:"8.82",kp:"8.7"},
-{t:"Фрирен, провожающая в последний путь",g:"Фэнтези / Приключения",sh:"8.84",kp:"8.8"},
-{t:"Монолог фармацевта",g:"Детектив / Исторический",sh:"8.83",kp:"8.8"},
-{t:"Дандадан",g:"Мистика / Экшен",sh:"8.39",kp:"8.6"},
-{t:"Поднятие уровня в одиночку",g:"Экшен / Фэнтези",sh:"8.33",kp:"8.4"},
-{t:"Тетрадь смерти",g:"Триллер / Детектив",sh:"8.62",kp:"8.6"},
-{t:"Стальной алхимик: Братство",g:"Фэнтези / Приключения",sh:"8.99",kp:"8.7"},
-{t:"Врата Штейна",g:"Фантастика / Триллер",sh:"8.84",kp:"8.5"},
-{t:"Код Гиас: Восставший Лелуш",g:"Меха / Психология",sh:"8.79",kp:"8.5"},
-{t:"Человек-бензопила",g:"Экшен / Ужасы",sh:"8.45",kp:"8.5"},
-{t:"Кайдзю № 8",g:"Фантастика / Сёнэн",sh:"8.13",kp:"8.0"},
-{t:"Синяя тюрьма: Блю Лок",g:"Спорт / Триллер",sh:"8.25",kp:"8.6"}
-];
-const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid');
+const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid'),st=document.getElementById('st');
 let w,ht,hold=0,hov=0,last=0,done=0,actx,cols=[];
 function rsz(){w=c.width=innerWidth;ht=c.height=innerHeight;cols=Array(Math.floor(w/18)).fill(0).map(()=>Math.random()*ht)}
 addEventListener('resize',rsz);rsz();
@@ -80,24 +69,26 @@ btn.addEventListener('pointerenter',()=>{aud();hov=1;btn.classList.add('act')});
 btn.addEventListener('pointerleave',()=>{if(!done){hov=0;hold=0;bar.style.width='0%';btn.classList.remove('act')}});
 function scream(){
 aud();const t=actx.currentTime,g=actx.createGain();g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.01,t+1.1);g.connect(actx.destination);
-const freqs=new Array(420,890,1450);
-for(let i=0;i<freqs.length;i++){const f=freqs[i],o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.linearRampToValueAtTime(f*1.8,t+.2);o.frequency.linearRampToValueAtTime(f*.4,t+1);o.connect(g);o.start(t);o.stop(t+1.1)}
+const fr=[420,890,1450];for(let i=0;i<fr.length;i++){const o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(fr[i],t);o.frequency.linearRampToValueAtTime(fr[i]*1.8,t+.2);o.connect(g);o.start(t);o.stop(t+1.1)}
 }
-function render(){
-const v=document.getElementById('q').value.toLowerCase();
-const list=DB.filter(a=>a.t.toLowerCase().includes(v));
-let html='';
+async function loadAnime(){
+const q=document.getElementById('q').value.trim();
+st.style.display='block';grid.innerHTML='';
+const api=q?'https://jikan.moe';
+try{
+const res=await fetch(api);const json=await res.json();st.style.display='none';
+const list=json.data||[];let out='';
 for(let i=0;i<list.length;i++){
-const a=list[i];
-const url='https://yandex.ru(a.t+' смотреть онлайн');
-html+='<div class="card"><div><div class="tag">'+a.g+'</div><div class="ttl">'+a.t+'</div></div><div><div class="rt"><span class="sh">SHIKI ★ '+a.sh+'</span><span class="kp">КП ★ '+a.kp+'</span></div><a class="go" target="_blank" href="'+url+'">СМОТРЕТЬ</a></div></div>';
+const a=list[i];const img=a.images.jpg.image_url;const sc=a.score||'—';const ep=a.episodes?a.episodes+' эп.':'онгоинг';
+out+='<div class="card"><div><img class="poster" src="'+img+'"><div class="ttl">'+a.title+'</div></div><div><div class="rt"><span>★ '+sc+'</span><span>'+ep+'</span></div><a class="go" target="_blank" href="'+a.url+'">СМОТРЕТЬ</a></div></div>';
 }
-grid.innerHTML=html;
+grid.innerHTML=out||'<div style="color:#ff003c">НИЧЕГО НЕ НАЙДЕНО</div>';
+}catch(e){st.textContent='ОШИБКА СОЕДИНЕНИЯ С АРХИВОМ'}
 }
 function go(){
 done=1;intro.style.display='none';scare.style.display='flex';scream();
 let f=0;const iv=setInterval(()=>{scare.style.background=f++%2?'#000':'#ff003c';scare.style.color=f%2?'#ff003c':'#fff'},50);
-setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pig.style.display='flex';main.style.display='block';render()},750);
+setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pig.style.display='flex';main.style.display='block';loadAnime()},750);
 }
 function loop(now){
 requestAnimationFrame(loop);const dt=now-last;last=now;
