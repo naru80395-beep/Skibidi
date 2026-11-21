@@ -1,331 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RGB_PIG // 01</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #050505;
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            user-select: none;
-        }
-
-        .scanlines {
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.28) 0px,
-                rgba(0, 0, 0, 0.28) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-            pointer-events: none;
-            z-index: 20;
-        }
-
-        #start-btn {
-            position: relative;
-            z-index: 15;
-            padding: 24px 60px;
-            font-size: 28px;
-            font-weight: 900;
-            font-family: inherit;
-            letter-spacing: 6px;
-            color: #fff;
-            background: #0a0a0a;
-            border: 2px solid #fff;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: -5px 0 0 #ff003c, 5px 0 0 #00f0ff, 0 0 30px rgba(255, 0, 60, 0.35);
-            text-shadow: -2px 0 #ff003c, 2px 0 #00f0ff;
-        }
-
-        #start-btn:hover {
-            animation: hard-glitch 0.22s infinite;
-            background: #141414;
-        }
-
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            z-index: 5;
-        }
-
-        #hint {
-            position: fixed;
-            bottom: 20px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: #888;
-            text-shadow: -1px 0 #ff003c, 1px 0 #00f0ff;
-            display: none;
-            z-index: 15;
-            pointer-events: none;
-            text-align: center;
-            width: 100%;
-        }
-
-        @keyframes hard-glitch {
-            0% {
-                box-shadow: -6px 0 0 #ff003c, 6px 0 0 #00f0ff;
-                text-shadow: -3px 0 #ff003c, 3px 0 #00f0ff;
-            }
-            33% {
-                box-shadow: 7px -2px 0 #00ff41, -7px 2px 0 #ff003c;
-                text-shadow: 3px 0 #00ff41, -3px 0 #ff003c;
-            }
-            66% {
-                box-shadow: -5px 3px 0 #00f0ff, 5px -3px 0 #ff003c;
-                text-shadow: -2px 0 #00f0ff, 2px 0 #ff003c;
-            }
-            100% {
-                box-shadow: 6px 0 0 #ff003c, -6px 0 0 #00ff41;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RGB_PIG // 01</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050505;color:#fff;font-family:'Courier New',monospace;height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;user-select:none}
+.scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);pointer-events:none;z-index:20}
+#btn{position:relative;z-index:15;padding:24px 60px;font-size:28px;font-weight:900;font-family:inherit;letter-spacing:6px;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
+#btn:hover{animation:g .22s infinite;background:#141414}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:5}
+#hint{position:fixed;bottom:20px;font-size:12px;letter-spacing:2px;color:#888;text-shadow:-1px 0 #ff003c,1px 0 #00f0ff;display:none;z-index:15;pointer-events:none;width:100%;text-align:center}
+@keyframes g{0%{box-shadow:-6px 0 0 #ff003c,6px 0 0 #00f0ff}33%{box-shadow:7px -2px 0 #00ff41,-7px 2px 0 #ff003c}66%{box-shadow:-5px 3px 0 #00f0ff,5px -3px 0 #ff003c}100%{box-shadow:6px 0 0 #ff003c,-6px 0 0 #00ff41}}
+</style>
 </head>
 <body>
-
-    <div class="scanlines"></div>
-    <button id="start-btn" onclick="startPig()">НАЖМИ</button>
-    <div id="hint">[ ДВИГАЙ МЫШЬЮ ДЛЯ ВРАЩЕНИЯ // СКРОЛЛ ДЛЯ ЗУМА ]</div>
-    <canvas id="scene"></canvas>
-
-    <script>
-        const btn = document.getElementById('start-btn');
-        const canvas = document.getElementById('scene');
-        const hint = document.getElementById('hint');
-        const ctx = canvas.getContext('2d');
-
-        let width, height;
-        let points = [];
-        let isRunning = false;
-        let buildProgress = 0;
-
-        let rotX = 0.25;
-        let rotY = 0.6;
-        let targetRotX = 0.25;
-        let targetRotY = 0.6;
-        let zoom = 1;
-        let isDragging = false;
-        let prevMouse = { x: 0, y: 0 };
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        function createPoint(x, y, z, part) {
-            return {
-                x: x,
-                y: y,
-                z: z,
-                sx: (Math.random() - 0.5) * 14,
-                sy: (Math.random() - 0.5) * 14,
-                sz: (Math.random() - 0.5) * 14,
-                char: Math.random() > 0.5 ? '1' : '0',
-                part: part,
-                flickerSpeed: 0.02 + Math.random() * 0.08
-            };
-        }
-
-        function generatePigPoints() {
-            const pts = [];
-
-            function addEllipsoid(cx, cy, cz, rx, ry, rz, count, part) {
-                for (let i = 0; i < count; i++) {
-                    const u = Math.random() * Math.PI * 2;
-                    const v = Math.acos(2 * Math.random() - 1);
-                    const shell = 0.88 + Math.random() * 0.12;
-                    const x = cx + rx * shell * Math.sin(v) * Math.cos(u);
-                    const y = cy + ry * shell * Math.sin(v) * Math.sin(u);
-                    const z = cz + rz * shell * Math.cos(v);
-                    pts.push(createPoint(x, y, z, part));
-                }
-            }
-
-            function addCylinder(x1, y1, z1, x2, y2, z2, r, count, part) {
-                for (let i = 0; i < count; i++) {
-                    const t = Math.random();
-                    const angle = Math.random() * Math.PI * 2;
-                    const rad = r * (0.85 + Math.random() * 0.15);
-                    const x = x1 + (x2 - x1) * t + Math.cos(angle) * rad;
-                    const y = y1 + (y2 - y1) * t;
-                    const z = z1 + (z2 - z1) * t + Math.sin(angle) * rad;
-                    pts.push(createPoint(x, y, z, part));
-                }
-            }
-
-            addEllipsoid(0, 0, 0, 1.45, 0.92, 0.88, 950, 'body');
-            addEllipsoid(1.38, -0.18, 0, 0.68, 0.62, 0.60, 480, 'head');
-            addEllipsoid(2.02, -0.10, 0, 0.22, 0.27, 0.29, 170, 'snout');
-            addEllipsoid(1.30, -0.78, 0.36, 0.24, 0.32, 0.08, 95, 'ear');
-            addEllipsoid(1.30, -0.78, -0.36, 0.24, 0.32, 0.08, 95, 'ear');
-
-            addCylinder(0.78, 0.55, 0.44, 0.78, 1.38, 0.44, 0.20, 110, 'leg');
-            addCylinder(0.78, 0.55, -0.44, 0.78, 1.38, -0.44, 0.20, 110, 'leg');
-            addCylinder(-0.82, 0.55, 0.44, -0.82, 1.38, 0.44, 0.20, 110, 'leg');
-            addCylinder(-0.82, 0.55, -0.44, -0.82, 1.38, -0.44, 0.20, 110, 'leg');
-
-            for (let i = 0; i < 85; i++) {
-                const t = i / 85;
-                const angle = t * Math.PI * 3.5;
-                const x = -1.42 - t * 0.42;
-                const y = -0.25 + Math.sin(angle) * 0.16 - t * 0.15;
-                const z = Math.cos(angle) * 0.16;
-                pts.push(createPoint(x, y, z, 'tail'));
-            }
-
-            return pts.sort(function() { return Math.random() - 0.5; });
-        }
-
-        function startPig() {
-            if (isRunning) return;
-            btn.style.display = 'none';
-            canvas.style.display = 'block';
-            hint.style.display = 'block';
-            resize();
-            points = generatePigPoints();
-            isRunning = true;
-            animate();
-        }
-
-        window.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            prevMouse = { x: e.clientX, y: e.clientY };
-        });
-        window.addEventListener('mouseup', function() { isDragging = false; });
-        window.addEventListener('mousemove', function(e) {
-            if (!isDragging) return;
-            const dx = e.clientX - prevMouse.x;
-            const dy = e.clientY - prevMouse.y;
-            targetRotY += dx * 0.008;
-            targetRotX += dy * 0.008;
-            prevMouse = { x: e.clientX, y: e.clientY };
-        });
-
-        window.addEventListener('wheel', function(e) {
-            zoom -= e.deltaY * 0.001;
-            zoom = Math.max(0.5, Math.min(2.2, zoom));
-        });
-
-        window.addEventListener('touchstart', function(e) {
-            if (!e.touches.length) return;
-            isDragging = true;
-            prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        });
-        window.addEventListener('touchend', function() { isDragging = false; });
-        window.addEventListener('touchmove', function(e) {
-            if (!isDragging || !e.touches.length) return;
-            const dx = e.touches[0].clientX - prevMouse.x;
-            const dy = e.touches[0].clientY - prevMouse.y;
-            targetRotY += dx * 0.01;
-            targetRotX += dy * 0.01;
-            prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        });
-
-        function animate() {
-            if (!isRunning) return;
-            requestAnimationFrame(animate);
-
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.35)';
-            ctx.fillRect(0, 0, width, height);
-
-            if (buildProgress < 1) {
-                buildProgress += 0.018;
-                if (buildProgress > 1) buildProgress = 1;
-            }
-            const ease = 1 - Math.pow(1 - buildProgress, 3);
-
-            if (!isDragging) {
-                targetRotY += 0.007;
-            }
-            rotX += (targetRotX - rotX) * 0.1;
-            rotY += (targetRotY - rotY) * 0.1;
-
-            const cosY = Math.cos(rotY);
-            const sinY = Math.sin(rotY);
-            const cosX = Math.cos(rotX);
-            const sinX = Math.sin(rotX);
-
-            const baseScale = Math.min(width, height) * 0.26 * zoom;
-            const projected = [];
-
-            const glitchTrigger = Math.random() > 0.96;
-            const rgbSplit = glitchTrigger ? (Math.random() * 14 + 4) : 2.5;
-
-            for (let i = 0; i < points.length; i++) {
-                const p = points[i];
-
-                if (Math.random() < p.flickerSpeed) {
-                    p.char = p.char === '0' ? '1' : '0';
-                }
-
-                const cx = p.sx + (p.x - p.sx) * ease;
-                const cy = p.sy + (p.y - p.sy) * ease;
-                const cz = p.sz + (p.z - p.sz) * ease;
-
-                const x1 = cx * cosY - cz * sinY;
-const z1 = cz * cosY + cx * sinY;
-const y2 = cy * cosX - z1 * sinX;
-const z2 = z1 * cosX + cy * sinX;
-const fov = 4.2;
-const scale = fov / (fov + z2);
-const screenX = width / 2 + x1 * baseScale * scale;
-const screenY = height / 2 + y2 * baseScale * scale;
-projected.push({
-x: screenX,
-y: screenY,
-z: z2,
-scale: scale,
-char: p.char,
-part: p.part
-});
+<div class="scan"></div>
+<button id="btn" onclick="go()">НАЖМИ</button>
+<div id="hint">[ ДВИГАЙ МЫШЬЮ ДЛЯ ВРАЩЕНИЯ // СКРОЛЛ ДЛЯ ЗУМА ]</div>
+<canvas id="c"></canvas>
+<script>
+const b=document.getElementById('btn'),c=document.getElementById('c'),h=document.getElementById('hint'),x=c.getContext('2d');
+let w,ht,pts=[],run=0,prog=0,rx=.25,ry=.6,trx=.25,try_=.6,zm=1,drag=0,pm={x:0,y:0};
+function rsz(){w=c.width=innerWidth;ht=c.height=innerHeight}
+addEventListener('resize',rsz);rsz();
+function pt(X,Y,Z,p){return{x:X,y:Y,z:Z,sx:(Math.random()-.5)*14,sy:(Math.random()-.5)*14,sz:(Math.random()-.5)*14,ch:Math.random()>.5?'1':'0',p,sp:.02+Math.random()*.08}}
+function gen(){
+const a=[];
+function el(cx,cy,cz,ax,ay,az,n,p){for(let i=0;i<n;i++){const u=Math.random()*6.283,v=Math.acos(2*Math.random()-1),s=.88+Math.random()*.12;a.push(pt(cx+ax*s*Math.sin(v)*Math.cos(u),cy+ay*s*Math.sin(v)*Math.sin(u),cz+az*s*Math.cos(v),p))}}
+function cy(x1,y1,z1,x2,y2,z2,r,n,p){for(let i=0;i<n;i++){const t=Math.random(),g=Math.random()*6.283,d=r*(.85+Math.random()*.15);a.push(pt(x1+(x2-x1)*t+Math.cos(g)*d,y1+(y2-y1)*t,z1+(z2-z1)*t+Math.sin(g)*d,p))}}
+el(0,0,0,1.45,.92,.88,950,'b');el(1.38,-.18,0,.68,.62,.6,480,'h');el(2.02,-.1,0,.22,.27,.29,170,'s');
+el(1.3,-.78,.36,.24,.32,.08,95,'e');el(1.3,-.78,-.36,.24,.32,.08,95,'e');
+cy(.78,.55,.44,.78,1.38,.44,.2,110,'l');cy(.78,.55,-.44,.78,1.38,-.44,.2,110,'l');
+cy(-.82,.55,.44,-.82,1.38,.44,.2,110,'l');cy(-.82,.55,-.44,-.82,1.38,-.44,.2,110,'l');
+for(let i=0;i<85;i++){const t=i/85,g=t*11;a.push(pt(-1.42-t*.42,-.25+Math.sin(g)*.16-t*.15,Math.cos(g)*.16,'t'))}
+return a.sort(()=>Math.random()-.5)
 }
-projected.sort(function(a, b) { return b.z - a.z; });
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-for (let i = 0; i < projected.length; i++) {
-const pt = projected[i];
-if (pt.scale <= 0) continue;
-const fontSize = Math.max(8, Math.round(13 * pt.scale));
-ctx.font = 'bold ' + fontSize + 'px "Courier New", monospace';
-const alpha = Math.max(0.2, Math.min(1, (1.8 - pt.z) / 2.5));
-let rowShift = 0;
-if (glitchTrigger && Math.sin(pt.y * 0.1) > 0.7) {
-rowShift = (Math.random() - 0.5) * 25;
+function go(){if(run)return;b.style.display='none';c.style.display='block';h.style.display='block';rsz();pts=gen();run=1;loop()}
+addEventListener('mousedown',e=>{drag=1;pm={x:e.clientX,y:e.clientY}});
+addEventListener('mouseup',()=>drag=0);
+addEventListener('mousemove',e=>{if(!drag)return;try_+=(e.clientX-pm.x)*.008;trx+=(e.clientY-pm.y)*.008;pm={x:e.clientX,y:e.clientY}});
+addEventListener('wheel',e=>{zm=Math.max(.5,Math.min(2.2,zm-e.deltaY*.001))});
+addEventListener('touchstart',e=>{if(e.touches.length){drag=1;pm={x:e.touches[0].clientX,y:e.touches[0].clientY}}});
+addEventListener('touchend',()=>drag=0);
+addEventListener('touchmove',e=>{if(!drag||!e.touches.length)return;try_+=(e.touches[0].clientX-pm.x)*.01;trx+=(e.touches[0].clientY-pm.y)*.01;pm={x:e.touches[0].clientX,y:e.touches[0].clientY}});
+function loop(){
+if(!run)return;requestAnimationFrame(loop);
+x.fillStyle='rgba(5,5,5,.35)';x.fillRect(0,0,w,ht);
+if(prog<1)prog=Math.min(1,prog+.018);
+const ez=1-Math.pow(1-prog,3);
+if(!drag)try_+=.007;rx+=(trx-rx)*.1;ry+=(try_-ry)*.1;
+const cY=Math.cos(ry),sY=Math.sin(ry),cX=Math.cos(rx),sX=Math.sin(rx),bs=Math.min(w,ht)*.26*zm,pr=[],gl=Math.random()>.96,sp=gl?(Math.random()*14+4):2.5;
+for(let i=0;i<pts.length;i++){
+const p=pts[i];if(Math.random()<p.sp)p.ch=p.ch==='0'?'1':'0';
+const cx=p.sx+(p.x-p.sx)*ez,cy=p.sy+(p.y-p.sy)*ez,cz=p.sz+(p.z-p.sz)*ez;
+const x1=cx*cY-cz*sY,z1=cz*cY+cx*sY,y2=cy*cX-z1*sX,z2=z1*cX+cy*sX,sc=4.2/(4.2+z2);
+pr.push({x:w/2+x1*bs*sc,y:ht/2+y2*bs*sc,z:z2,sc,ch:p.ch,p:p.p})
 }
-const drawX = pt.x + rowShift;
-ctx.fillStyle = 'rgba(255, 0, 60, ' + (alpha * 0.85) + ')';
-ctx.fillText(pt.char, drawX - rgbSplit * pt.scale, pt.y);
-ctx.fillStyle = 'rgba(0, 240, 255, ' + (alpha * 0.85) + ')';
-ctx.fillText(pt.char, drawX + rgbSplit * pt.scale, pt.y);
-if (pt.part === 'snout' || pt.part === 'ear') {
-ctx.fillStyle = 'rgba(255, 180, 220, ' + alpha + ')';
-} else {
-ctx.fillStyle = 'rgba(255, 255, 255, ' + (alpha * 0.9) + ')';
-}
-ctx.fillText(pt.char, drawX, pt.y);
-}
-}
+pr.sort((a,b)=>b.z-a.z);x.textAlign='center';x.textBaseline='middle';
+for(let i=0;i<pr.length;i++){
+const t=pr[i];if(t.sc<=0)continue;
+x.font='bold '+Math.max(8,Math.round(13*t.sc))+'px "Courier New",monospace';
+const al=Math.max(.2,Math.min(1,(1.8-t.z)/2.5)),dx=t.x+((gl&&Math.sin(t.y*.1)>.7)?(Math.random()-.5)*25:0);
+x.fillStyle='rgba(255,0,60,'+(al*.85)+')';x.fillText(t.ch,dx-sp*t.sc,t.y);
+x.fillStyle='rgba(0,240,255,'+(al*.85)+')';x.fillText(t.ch,dx+sp*t.sc,t.y);
+x.fillStyle=(t.p==='s'||t.p==='e')?'rgba(255,180,220,'+al+')':'rgba(255,255,255,'+(al*.9)+')';
+x.fillText(t.ch,dx,t.y)
+}}
+</script>
+</body>
+</html>
