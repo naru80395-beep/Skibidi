@@ -2,150 +2,68 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HRYAK_ANIME // ARCHIVE</title>
+<title>HRYAK_ANIME</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;user-select:none}
-.scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);pointer-events:none;z-index:50}
-#intro{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:20}
-#btn{padding:26px 50px;font-size:24px;font-weight:900;font-family:inherit;letter-spacing:4px;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
-#btn.act{animation:g .15s infinite;background:#1a0008}
+body{background:#050505;color:#fff;font-family:monospace;min-height:100vh;overflow-x:hidden}
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;gap:20px;justify-content:center;align-items:center;z-index:20;background:#050505}
+#btn{padding:25px 45px;font-size:22px;font-weight:900;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff}
+#skip{background:none;border:1px solid #444;color:#777;padding:6px 12px;cursor:pointer;font-size:12px}
 #bw{position:fixed;bottom:0;left:0;width:100%;height:14px;background:#111;z-index:25}
 #bar{width:0%;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff)}
-#scare{position:fixed;inset:0;background:#ff003c;z-index:60;display:none;justify-content:center;align-items:center;font-size:11vw;font-weight:900;color:#000;text-shadow:-8px 0 #00f0ff,8px 0 #fff}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1}
-#pig-bg{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.35;animation:pig 4s infinite}
-#pig-bg svg{width:min(82vw,620px);filter:drop-shadow(-7px 0 0 #ff003c) drop-shadow(7px 0 0 #00f0ff)}
-#main{position:relative;z-index:10;display:none;max-width:1150px;margin:0 auto;padding:30px 20px 60px}
-.top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff;padding-bottom:15px;box-shadow:0 4px 0 #ff003c}
-h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
-.sbox{display:flex;gap:8px}
-#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:250px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
-#sb{padding:10px 18px;background:#fff;color:#000;font-weight:900;font-family:inherit;border:none;cursor:pointer;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
-#sb:hover{background:#ff003c;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-.card{background:rgba(10,10,12,.88);border:1px solid #444;padding:12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff;transition:.15s}
-.card:hover{transform:translateY(-4px);border-color:#fff}
-.poster{width:100%;height:260px;object-fit:cover;margin-bottom:10px;border:1px solid #333;background:#111}
-.ttl{font-size:16px;font-weight:900;margin-bottom:8px;line-height:1.25}
-.rt{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;font-weight:700;color:#00ff88}
-.go{display:block;text-align:center;padding:10px;background:#fff;color:#000;font-weight:900;text-decoration:none;letter-spacing:2px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
-.go:hover{background:#ff003c;color:#fff}
-#st{text-align:center;padding:30px;font-size:18px;color:#00f0ff;display:none}
-@keyframes g{0%{box-shadow:-7px 0 0 #ff003c,7px 0 0 #00f0ff}50%{box-shadow:7px -3px 0 #00ff41,-7px 3px 0 #ff003c}100%{box-shadow:-6px 2px 0 #00f0ff,6px -2px 0 #ff003c}}
-@keyframes pig{0%,94%,100%{transform:translate(0) scale(1)}96%{transform:translate(-6px,2px) scale(1.02)}98%{transform:translate(6px,-2px) scale(.99)}}
+#scare{position:fixed;inset:0;background:#ff003c;z-index:60;display:none;justify-content:center;align-items:center;font-size:11vw;font-weight:900;color:#000}
+canvas{position:fixed;inset:0;display:none;z-index:1}
+#pig{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.35}
+#pig svg{width:min(80vw,580px);filter:drop-shadow(-6px 0 0 #ff003c) drop-shadow(6px 0 0 #00f0ff)}
+#main{position:relative;z-index:10;display:none;max-width:1100px;margin:0 auto;padding:25px 15px}
+.top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #fff;padding-bottom:12px}
+#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px;width:230px}
+#sb{padding:10px 16px;background:#fff;color:#000;font-weight:900;border:none;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:15px}
+.card{background:rgba(10,10,12,.9);border:1px solid #555;padding:10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff}
+.poster{width:100%;height:250px;object-fit:cover;margin-bottom:8px}
+.ttl{font-size:15px;font-weight:900;margin-bottom:8px}
+.rt{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:#0f8}
+.go{display:block;text-align:center;padding:9px;background:#fff;color:#000;font-weight:900;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="scan"></div>
-<div id="intro"><button id="btn">ДЕРЖИ КУРСОР 10 СЕК</button><div id="bw"><div id="bar"></div></div></div>
+<div id="intro">
+  <button id="btn">НАВЕДИ И ДЕРЖИ 10 СЕК</button>
+  <button id="skip" onclick="go()">[ ТЕСТ: ЗАПУСТИТЬ СРАЗУ ]</button>
+  <div id="bw"><div id="bar"></div></div>
+</div>
 <div id="scare">01_ХРЯК_01</div>
 <canvas id="c"></canvas>
-<div id="pig-bg">
-<svg viewBox="0 0 320 300">
-<path d="M125 46 Q160 32 195 46 L190 56 Q160 46 130 56 Z" fill="#2b1b17"/>
-<path d="M125 50 C92 75 65 140 68 205 C71 255 115 274 165 274 C225 274 268 248 265 190 C262 135 225 72 195 50 Z" fill="#e5a996" stroke="#2b1b17" stroke-width="4"/>
-<path d="M88 185 Q140 205 235 175 M82 212 Q145 234 248 202 M90 238 Q155 258 240 230" fill="none" stroke="#9e6252" stroke-width="3.5" stroke-linecap="round"/>
-<circle cx="136" cy="84" r="5" fill="#1a1110"/><circle cx="138" cy="82" r="1.5" fill="#fff"/>
-<circle cx="182" cy="84" r="5" fill="#1a1110"/><circle cx="184" cy="82" r="1.5" fill="#fff"/>
-<ellipse cx="122" cy="142" rx="48" ry="36" fill="#f2b5a7" stroke="#2b1b17" stroke-width="4"/>
-<ellipse cx="104" cy="142" rx="9" ry="13" fill="#4a2520"/><ellipse cx="138" cy="142" rx="9" ry="13" fill="#4a2520"/>
-<path d="M108 266 L104 286 L116 286 L118 268 M212 264 L216 285 L228 285 L224 262" fill="#c78876" stroke="#2b1b17" stroke-width="3"/>
-</svg>
-</div>
+<div id="pig"><svg viewBox="0 0 320 300"><path d="M125 46 Q160 32 195 46 L190 56 Q160 46 130 56 Z" fill="#2b1b17"/><path d="M125 50 C92 75 65 140 68 205 C71 255 115 274 165 274 C225 274 268 248 265 190 C262 135 225 72 195 50 Z" fill="#e5a996" stroke="#2b1b17" stroke-width="4"/><path d="M88 185 Q140 205 235 175 M82 212 Q145 234 248 202 M90 238 Q155 258 240 230" fill="none" stroke="#9e6252" stroke-width="3.5"/><circle cx="136" cy="84" r="5" fill="#1a1110"/><circle cx="182" cy="84" r="5" fill="#1a1110"/><ellipse cx="122" cy="142" rx="48" ry="36" fill="#f2b5a7" stroke="#2b1b17" stroke-width="4"/><ellipse cx="104" cy="142" rx="9" ry="13" fill="#4a2520"/><ellipse cx="138" cy="142" rx="9" ry="13" fill="#4a2520"/><path d="M108 266 L104 286 L116 286 L118 268 M212 264 L216 285 L228 285 L224 262" fill="#c78876" stroke="#2b1b17" stroke-width="3"/></svg></div>
 <div id="main">
-<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Naruto..."><button id="sb">НАЙТИ</button></div></div>
-<div id="st"></div>
-<div class="grid" id="grid"></div>
+  <div class="top"><h2>HRYAK_ARCHIVE</h2><div><input id="q" placeholder="One Piece..."><button id="sb" onclick="load()">НАЙТИ</button></div></div>
+  <div id="st" style="color:#0ff;margin-bottom:15px"></div>
+  <div class="grid" id="grid"></div>
 </div>
 <script>
-const btn=document.getElementById('btn'),bar=document.getElementById('bar'),c=document.getElementById('c'),x=c.getContext('2d'),grid=document.getElementById('grid'),st=document.getElementById('st');
 let ms=0,tm=null,done=0,cols=[];
+const b=document.getElementById('btn'),bar=document.getElementById('bar'),c=document.getElementById('c'),x=c.getContext('2d');
 function rsz(){c.width=innerWidth;c.height=innerHeight;cols=[];for(let i=0;i<c.width/18;i++)cols.push(Math.random()*c.height)}
-window.onresize=rsz;rsz();
-
-btn.onmouseenter=function(){
-  if(done||tm)return;
-  btn.classList.add('act');
-  tm=setInterval(function(){
-    ms+=50;
-    bar.style.width=Math.min(100,ms/100)+'%';
-    btn.textContent='ДЕРЖИ: '+Math.max(0,10-ms/1000).toFixed(1)+'с';
-    if(ms>=10000){clearInterval(tm);go();}
-  },50);
-};
-btn.onmouseleave=function(){
-  if(done)return;
-  clearInterval(tm);tm=null;ms=0;
-  bar.style.width='0%';btn.classList.remove('act');
-  btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
-};
-
-function scream(){
-  try{
-    const a=new(window.AudioContext||window.webkitAudioContext)();
-    const o1=a.createOscillator(),o2=a.createOscillator(),gn=a.createGain();
-    o1.type='sawtooth';o2.type='square';
-    o1.frequency.setValueAtTime(420,a.currentTime);o1.frequency.linearRampToValueAtTime(1100,a.currentTime+0.25);
-    o2.frequency.setValueAtTime(890,a.currentTime);o2.frequency.linearRampToValueAtTime(310,a.currentTime+0.9);
-    gn.gain.setValueAtTime(0.85,a.currentTime);gn.gain.exponentialRampToValueAtTime(0.01,a.currentTime+1);
-    o1.connect(gn);o2.connect(gn);gn.connect(a.destination);
-    o1.start();o2.start();o1.stop(a.currentTime+1);o2.stop(a.currentTime+1);
-  }catch(e){}
-}
-
-async function load(){
-  const q=document.getElementById('q').value.trim();
-  st.style.display='block';st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';grid.innerHTML='';
-  const url=q?'https://jikan.moe';
-  try{
-    const r=await fetch(url),j=await r.json();
-    st.style.display='none';
-    const list=j.data||[];
-    for(let i=0;i<list.length;i++){
-      const a=list[i];
-      const card=document.createElement('div');card.className='card';
-      const img=document.createElement('img');img.className='poster';img.src=a.images.jpg.image_url;
-      const ttl=document.createElement('div');ttl.className='ttl';ttl.textContent=a.title_english||a.title;
-      const top=document.createElement('div');top.appendChild(img);top.appendChild(ttl);
-      const rt=document.createElement('div');rt.className='rt';
-      rt.innerHTML='<span>★ '+(a.score||'—')+'</span><span>'+(a.episodes?a.episodes+' эп.':'онгоинг')+'</span>';
-      const lnk=document.createElement('a');lnk.className='go';lnk.target='_blank';lnk.textContent='СМОТРЕТЬ';
-      lnk.href='https://shikimori.io;
-      const bot=document.createElement('div');bot.appendChild(rt);bot.appendChild(lnk);
-      card.appendChild(top);card.appendChild(bot);grid.appendChild(card);
-    }
-    if(!list.length){st.style.display='block';st.textContent='НИЧЕГО НЕ НАЙДЕНО';}
-  }catch(e){st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ';}
-}
-
-document.getElementById('sb').onclick=load;
-document.getElementById('q').onkeydown=function(e){if(e.key==='Enter')load();};
-
+onresize=rsz;rsz();
+b.onmouseover=function(){if(done||tm)return;tm=setInterval(function(){ms+=100;bar.style.width=(ms/100)+'%';b.textContent='ДЕРЖИ: '+Math.max(0,10-ms/1000).toFixed(1)+'с';if(ms>=10000){clearInterval(tm);go()}},100)};
+b.onmouseout=function(){if(done)return;clearInterval(tm);tm=null;ms=0;bar.style.width='0%';b.textContent='НАВЕДИ И ДЕРЖИ 10 СЕК'};
 function go(){
-  done=1;document.getElementById('intro').style.display='none';
-  const sc=document.getElementById('scare');sc.style.display='flex';scream();
-  let f=0,iv=setInterval(function(){sc.style.background=f++%2?'#000':'#ff003c';sc.style.color=f%2?'#ff003c':'#fff';},50);
-  setTimeout(function(){
-    clearInterval(iv);sc.style.display='none';c.style.display='block';
-    document.getElementById('pig-bg').style.display='flex';
-    document.getElementById('main').style.display='block';
-    load();rain();
-  },750);
+  if(done)return;done=1;document.getElementById('intro').style.display='none';
+  const sc=document.getElementById('scare');sc.style.display='flex';
+  try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),gn=a.createGain();o.type='sawtooth';o.frequency.value=600;gn.gain.value=0.8;o.connect(gn);gn.connect(a.destination);o.start();setTimeout(()=>o.stop(),700)}catch(e){}
+  setTimeout(function(){sc.style.display='none';c.style.display='block';document.getElementById('pig').style.display='flex';document.getElementById('main').style.display='block';load();rain()},700);
 }
-
-function rain(){
-  requestAnimationFrame(rain);
-  x.fillStyle='rgba(5,5,5,0.3)';x.fillRect(0,0,c.width,c.height);
-  x.font='14px monospace';
-  for(let i=0;i<cols.length;i++){
-    x.fillStyle=Math.random()>0.9?'#ff003c':'#00f0ff';
-    x.fillText(Math.random()>0.5?'1':'0',i*18,cols[i]);
-    cols[i]+=16;if(cols[i]>c.height&&Math.random()>0.95)cols[i]=0;
-  }
+async function load(){
+  const q=document.getElementById('q').value.trim(),g=document.getElementById('grid'),st=document.getElementById('st');
+  st.textContent='ЗАГРУЗКА...';g.innerHTML='';
+  const u=q?'https://jikan.moe';
+  try{const r=await fetch(u),j=await r.json();st.textContent='';(j.data||[]).forEach(a=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><img class="poster" src="'+a.images.jpg.image_url+'"><div class="ttl">'+(a.title_english||a.title)+'</div></div><div><div class="rt"><span>★ '+(a.score||'—')+'</span><span>'+(a.episodes||'?')+' эп.</span></div><a class="go" target="_blank" href="https://shikimori.io+'">СМОТРЕТЬ</a></div>';
+    g.appendChild(d)})}catch(e){st.textContent='ОШИБКА СЕТИ'}
 }
+function rain(){requestAnimationFrame(rain);x.fillStyle='rgba(5,5,5,.3)';x.fillRect(0,0,c.width,c.height);x.font='14px monospace';for(let i=0;i<cols.length;i++){x.fillStyle=Math.random()>.9?'#ff003c':'#00f0ff';x.fillText(Math.random()>.5?'1':'0',i*18,cols[i]);cols[i]+=16;if(cols[i]>c.height&&Math.random()>.95)cols[i]=0}}
 </script>
 </body>
 </html>
-
