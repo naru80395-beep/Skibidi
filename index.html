@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>HRYAK_ANIME</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HRYAK_ANIME // SEARCH</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #050505; color: #fff; font-family: monospace; min-height: 100vh; overflow-x: hidden; }
@@ -15,16 +16,16 @@ body { background: #050505; color: #fff; font-family: monospace; min-height: 100
 canvas { position: fixed; inset: 0; display: none; z-index: 1; }
 #pig { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; z-index: 2; pointer-events: none; opacity: 0.35; }
 #pig svg { width: min(80vw, 580px); filter: drop-shadow(-6px 0 0 #ff003c) drop-shadow(6px 0 0 #00f0ff); }
-#main { position: relative; z-index: 10; display: none; max-width: 1100px; margin: 0 auto; padding: 25px 15px; }
-.top { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #fff; padding-bottom: 12px; }
-#q { background: #0a0a0a; border: 2px solid #fff; color: #fff; padding: 10px; width: 230px; }
-#sb { padding: 10px 16px; background: #fff; color: #000; font-weight: 900; border: none; cursor: pointer; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 15px; }
-.card { background: rgba(10,10,12,0.9); border: 1px solid #555; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: -4px 0 0 #ff003c, 4px 0 0 #00f0ff; }
-.poster { width: 100%; height: 250px; object-fit: cover; margin-bottom: 8px; }
-.ttl { font-size: 15px; font-weight: 900; margin-bottom: 8px; }
-.rt { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #0f8; }
-.go { display: block; text-align: center; padding: 9px; background: #fff; color: #000; font-weight: 900; text-decoration: none; }
+#main { position: relative; z-index: 10; display: none; max-width: 720px; margin: 0 auto; padding: 14vh 20px 40px; text-align: center; }
+h1 { font-size: 32px; letter-spacing: 4px; margin-bottom: 28px; text-shadow: -3px 0 #ff003c, 3px 0 #00f0ff; }
+.sbox { display: flex; gap: 10px; margin-bottom: 24px; }
+#q { flex: 1; background: rgba(10,10,12,0.92); border: 2px solid #fff; color: #fff; padding: 16px; font-size: 18px; font-family: inherit; box-shadow: -4px 0 0 #ff003c, 4px 0 0 #00f0ff; outline: none; }
+.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 30px; }
+.go { padding: 16px; background: #fff; color: #000; font-weight: 900; font-size: 15px; border: none; cursor: pointer; letter-spacing: 1px; box-shadow: -4px 0 0 #ff003c, 4px 0 0 #00f0ff; }
+.go:hover { background: #ff003c; color: #fff; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.tag { background: rgba(15,15,20,0.85); border: 1px solid #555; color: #0ff; padding: 7px 12px; cursor: pointer; font-size: 13px; }
+.tag:hover { border-color: #fff; color: #fff; }
 </style>
 </head>
 <body>
@@ -49,15 +50,23 @@ canvas { position: fixed; inset: 0; display: none; z-index: 1; }
   </svg>
 </div>
 <div id="main">
-  <div class="top">
-    <h2>HRYAK_ARCHIVE</h2>
-    <div>
-      <input id="q" placeholder="One Piece, Ванпис..." onkeydown="if(event.key==='Enter')load()">
-      <button id="sb" onclick="load()">НАЙТИ</button>
-    </div>
+  <h1>HRYAK_ANIME // ПОИСК</h1>
+  <div class="sbox">
+    <input id="q" placeholder="Впиши аниме (например: Ванпис)..." onkeydown="if(event.key==='Enter')openSite('ya')">
   </div>
-  <div id="st" style="color:#0ff;margin-bottom:15px"></div>
-  <div class="grid" id="grid"></div>
+  <div class="links">
+    <button class="go" onclick="openSite('ya')">СМОТРЕТЬ (ЯНДЕКС)</button>
+    <button class="go" onclick="openSite('sh')">ОЦЕНКИ (SHIKIMORI)</button>
+    <button class="go" onclick="openSite('rt')">ПЛЕЕР (RUTUBE)</button>
+  </div>
+  <div class="tags">
+    <span class="tag" onclick="pick('Ван Пис')"># Ван Пис</span>
+    <span class="tag" onclick="pick('Атака титанов')"># Атака титанов</span>
+    <span class="tag" onclick="pick('Магическая битва')"># Магическая битва</span>
+    <span class="tag" onclick="pick('Блич')"># Блич</span>
+    <span class="tag" onclick="pick('Человек-бензопила')"># Человек-бензопила</span>
+    <span class="tag" onclick="pick('Наруто')"># Наруто</span>
+  </div>
 </div>
 <script>
 let ms = 0;
@@ -83,10 +92,7 @@ function stH() {
     ms += 100;
     document.getElementById('bar').style.width = (ms / 100) + '%';
     document.getElementById('btn').textContent = 'ДЕРЖИ: ' + Math.max(0, 10 - ms / 1000).toFixed(1) + 'с';
-    if (ms >= 10000) {
-      clearInterval(tm);
-      go();
-    }
+    if (ms >= 10000) { clearInterval(tm); go(); }
   }, 100);
 }
 
@@ -107,14 +113,9 @@ function go() {
   sc.style.display = 'flex';
   try {
     const a = new (window.AudioContext || window.webkitAudioContext)();
-    const o = a.createOscillator();
-    const gn = a.createGain();
-    o.type = 'sawtooth';
-    o.frequency.value = 600;
-    gn.gain.value = 0.8;
-    o.connect(gn);
-    gn.connect(a.destination);
-    o.start();
+    const o = a.createOscillator(), gn = a.createGain();
+    o.type = 'sawtooth'; o.frequency.value = 600; gn.gain.value = 0.8;
+    o.connect(gn); gn.connect(a.destination); o.start();
     setTimeout(function() { o.stop(); }, 700);
   } catch (e) {}
   setTimeout(function() {
@@ -122,64 +123,26 @@ function go() {
     document.getElementById('c').style.display = 'block';
     document.getElementById('pig').style.display = 'flex';
     document.getElementById('main').style.display = 'block';
-    load();
     rain();
   }, 700);
 }
-</script>
-<script>
-const BACKUP = [
-  { t: "Ван-Пис (One Piece)", s: "8.72", e: "1100+ эп." },
-  { t: "Атака титанов (Attack on Titan)", s: "8.82", e: "89 эп." },
-  { t: "Магическая битва (Jujutsu Kaisen)", s: "8.62", e: "47 эп." },
-  { t: "Наруто: Ураганные хроники", s: "8.28", e: "500 эп." },
-  { t: "Блич: Тысячелетняя кровавая война", s: "8.99", e: "40 эп." },
-  { t: "Человек-бензопила (Chainsaw Man)", s: "8.45", e: "12 эп." },
-  { t: "Тетрадь смерти (Death Note)", s: "8.62", e: "37 эп." },
-  { t: "Поднятие уровня в одиночку", s: "8.33", e: "25 эп." }
-];
 
-async function load() {
-  const q = document.getElementById('q').value.trim();
-  const g = document.getElementById('grid');
-  const st = document.getElementById('st');
-  st.textContent = 'ЗАГРУЗКА...';
-  g.innerHTML = '';
-  const map = { 'ванпис': 'One Piece', 'ван пис': 'One Piece', 'наруто': 'Naruto', 'блич': 'Bleach' };
-  const query = map[q.toLowerCase()] || q;
-  const base = 'https://jikan.moe';
-  const u = query ? base + 'anime?limit=16&q=' + encodeURIComponent(query) : base + 'top/anime?limit=16';
-  try {
-    const r = await fetch(u);
-    const j = await r.json();
-    st.textContent = '';
-    const list = j.data || [];
-    for (let i = 0; i < list.length; i++) {
-      const a = list[i];
-      const d = document.createElement('div');
-      d.className = 'card';
-      const shiki = 'https://shikimori.io' + '?search=' + encodeURIComponent(a.title);
-      d.innerHTML = '<div><img class="poster" src="' + a.images.jpg.image_url + '"><div class="ttl">' + (a.title_english || a.title) + '</div></div><div><div class="rt"><span>★ ' + (a.score || '—') + '</span><span>' + (a.episodes || '?') + ' эп.</span></div><a class="go" target="_blank" href="' + shiki + '">СМОТРЕТЬ</a></div>';
-      g.appendChild(d);
-    }
-    if (list.length) return;
-  } catch (e) {}
-  st.textContent = 'ЛОКАЛЬНЫЙ АРХИВ';
-  const filtered = q ? BACKUP.filter(function(x) { return x.t.toLowerCase().indexOf(q.toLowerCase()) !== -1; }) : BACKUP;
-  const show = filtered.length ? filtered : BACKUP;
-  for (let i = 0; i < show.length; i++) {
-    const b = show[i];
-    const d = document.createElement('div');
-    d.className = 'card';
-    const shiki = 'https://shikimori.io' + '?search=' + encodeURIComponent(b.t);
-    d.innerHTML = '<div><div class="ttl" style="padding:20px 0;color:#0ff">' + b.t + '</div></div><div><div class="rt"><span>★ ' + b.s + '</span><span>' + b.e + '</span></div><a class="go" target="_blank" href="' + shiki + '">СМОТРЕТЬ</a></div>';
-    g.appendChild(d);
-  }
+function pick(name) {
+  document.getElementById('q').value = name;
+  openSite('ya');
+}
+
+function openSite(site) {
+  const val = document.getElementById('q').value.trim() || 'Ван Пис';
+  let url = '';
+  if (site === 'ya') url = 'https://yandex.ru' + encodeURIComponent(val + ' смотреть онлайн аниме');
+  if (site === 'sh') url = 'https://shikimori.io' + encodeURIComponent(val);
+  if (site === 'rt') url = 'https://rutube.ru' + encodeURIComponent(val + ' аниме');
+  window.open(url, '_blank');
 }
 
 function rain() {
-  const c = document.getElementById('c');
-  const x = c.getContext('2d');
+  const c = document.getElementById('c'), x = c.getContext('2d');
   requestAnimationFrame(rain);
   x.fillStyle = 'rgba(5,5,5,0.3)';
   x.fillRect(0, 0, c.width, c.height);
