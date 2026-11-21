@@ -12,7 +12,7 @@ body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-heigh
 #btn{padding:26px 50px;font-size:24px;font-weight:900;font-family:inherit;letter-spacing:4px;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 #btn.act{animation:g .15s infinite;background:#1a0008}
 #bw{position:fixed;bottom:0;left:0;width:100%;height:14px;background:#111;z-index:25}
-#bar{width:0;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff)}
+#bar{width:0%;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff)}
 #scare{position:fixed;inset:0;background:#ff003c;z-index:60;display:none;justify-content:center;align-items:center;font-size:11vw;font-weight:900;color:#000;text-shadow:-8px 0 #00f0ff,8px 0 #fff}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1}
 #pig-bg{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.35;animation:pig 4s infinite}
@@ -39,7 +39,10 @@ h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </head>
 <body>
 <div class="scan"></div>
-<div id="intro"><button id="btn">ДЕРЖИ КУРСОР 10 СЕК</button><div id="bw"><div id="bar"></div></div></div>
+<div id="intro">
+  <button id="btn" onmouseenter="startHold()" onmouseleave="stopHold()" onclick="startHold()">ДЕРЖИ КУРСОР 10 СЕК</button>
+  <div id="bw"><div id="bar"></div></div>
+</div>
 <div id="scare">01_ХРЯК_01</div>
 <canvas id="c"></canvas>
 <div id="pig-bg">
@@ -61,68 +64,141 @@ h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </div>
 <script>
 const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid'),st=document.getElementById('st');
-let w,ht,hold=0,hov=0,last=null,done=0,busy=0,actx,cols=[];
-function rsz(){w=c.width=innerWidth;ht=c.height=innerHeight;cols=Array(Math.floor(w/18)).fill(0).map(()=>Math.random()*ht)}
-addEventListener('resize',rsz);rsz();
-function aud(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}
-addEventListener('pointerdown',aud);
-btn.addEventListener('pointerenter',()=>{aud();hov=1;btn.classList.add('act')});
-btn.addEventListener('pointerleave',()=>{if(!done){hov=0;hold=0;bar.style.width='0%';btn.classList.remove('act')}});
+let w=0,ht=0,ms=0,timer=null,done=0,busy=0,actx=null,cols=[];
+
+function rsz(){
+  w=c.width=window.innerWidth;
+  ht=c.height=window.innerHeight;
+  cols=[];
+  const count=Math.floor(w/18);
+  for(let i=0;i<count;i++)cols.push(Math.random()*ht);
+}
+window.addEventListener('resize',rsz);
+rsz();
+
+function aud(){
+  try{
+    if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+  }catch(e){}
+}
+
+function startHold(){
+  if(done||timer)return;
+  aud();
+  btn.classList.add('act');
+  timer=setInterval(function(){
+    ms+=50;
+    const pct=Math.min(100,(ms/10000)*100);
+    bar.style.width=pct+'%';
+    btn.textContent='ДЕРЖИ: '+Math.max(0,(10-ms/1000)).toFixed(1)+'с';
+    if(ms>=10000){
+      clearInterval(timer);
+      timer=null;
+      go();
+    }
+  },50);
+}
+
+function stopHold(){
+  if(done)return;
+  if(timer){clearInterval(timer);timer=null;}
+  ms=0;
+  bar.style.width='0%';
+  btn.classList.remove('act');
+  btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
+}
+
 function scream(){
-try{
-aud();const t=actx.currentTime,g=actx.createGain();g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.01,t+1.1);g.connect(actx.destination);
-const o1=actx.createOscillator(),o2=actx.createOscillator();o1.type='sawtooth';o2.type='square';
-o1.frequency.setValueAtTime(420,t);o1.frequency.linearRampToValueAtTime(1100,t+.25);
-o2.frequency.setValueAtTime(890,t);o2.frequency.linearRampToValueAtTime(310,t+.9);
-o1.connect(g);o2.connect(g);o1.start(t);o2.start(t);o1.stop(t+1.1);o2.stop(t+1.1);
-}catch(e){}
+  try{
+    aud();
+    const t=actx.currentTime,g=actx.createGain();
+    g.gain.setValueAtTime(0.9,t);
+    g.gain.exponentialRampToValueAtTime(0.01,t+1.1);
+    g.connect(actx.destination);
+    const o1=actx.createOscillator(),o2=actx.createOscillator();
+    o1.type='sawtooth';o2.type='square';
+    o1.frequency.setValueAtTime(420,t);o1.frequency.linearRampToValueAtTime(1100,t+0.25);
+    o2.frequency.setValueAtTime(890,t);o2.frequency.linearRampToValueAtTime(310,t+0.9);
+    o1.connect(g);o2.connect(g);
+    o1.start(t);o2.start(t);
+    o1.stop(t+1.1);o2.stop(t+1.1);
+  }catch(e){}
 }
+
 async function loadAnime(){
-if(busy)return;busy=1;
-const q=document.getElementById('q').value.trim();
-st.style.display='block';st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';grid.innerHTML='';
-const api=q?'https://jikan.moe';
-try{
-const res=await fetch(api);
-if(!res.ok)throw new Error('HTTP');
-const json=await res.json();st.style.display='none';
-const list=json.data||[];
-for(let i=0;i<list.length;i++){
-const a=list[i];
-const card=document.createElement('div');card.className='card';
-const top=document.createElement('div');
-const img=document.createElement('img');img.className='poster';
-img.src=(a.images&&a.images.jpg&&a.images.jpg.image_url)?a.images.jpg.image_url:'';
-const ttl=document.createElement('div');ttl.className='ttl';ttl.textContent=a.title_english||a.title||'Без названия';
-top.appendChild(img);top.appendChild(ttl);
-const bot=document.createElement('div');
-const rt=document.createElement('div');rt.className='rt';
-rt.innerHTML='<span>★ '+(a.score||'—')+'</span><span>'+(a.episodes?a.episodes+' эп.':'онгоинг')+'</span>';
-const link=document.createElement('a');link.className='go';link.target='_blank';link.rel='noopener';link.textContent='СМОТРЕТЬ';
-link.href='https://shikimori.io;
-bot.appendChild(rt);bot.appendChild(link);card.appendChild(top);card.appendChild(bot);
-grid.appendChild(card);
+  if(busy)return;
+  busy=1;
+  const q=document.getElementById('q').value.trim();
+  st.style.display='block';
+  st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';
+  grid.innerHTML='';
+  const api=q?'https://jikan.moe';
+  try{
+    const res=await fetch(api);
+    if(!res.ok)throw new Error('HTTP');
+    const json=await res.json();
+    st.style.display='none';
+    const list=json.data||[];
+    for(let i=0;i<list.length;i++){
+      const a=list[i];
+      const card=document.createElement('div');card.className='card';
+      const top=document.createElement('div');
+      const img=document.createElement('img');img.className='poster';
+      img.src=(a.images&&a.images.jpg&&a.images.jpg.image_url)?a.images.jpg.image_url:'';
+      const ttl=document.createElement('div');ttl.className='ttl';
+      ttl.textContent=a.title_english||a.title||'Без названия';
+      top.appendChild(img);top.appendChild(ttl);
+      const bot=document.createElement('div');
+      const rt=document.createElement('div');rt.className='rt';
+      rt.innerHTML='<span>★ '+(a.score||'—')+'</span><span>'+(a.episodes?a.episodes+' эп.':'онгоинг')+'</span>';
+      const link=document.createElement('a');link.className='go';link.target='_blank';link.rel='noopener';link.textContent='СМОТРЕТЬ';
+      link.href='https://shikimori.io;
+      bot.appendChild(rt);bot.appendChild(link);
+      card.appendChild(top);card.appendChild(bot);
+      grid.appendChild(card);
+    }
+    if(!list.length){st.style.display='block';st.textContent='НИЧЕГО НЕ НАЙДЕНО';}
+  }catch(e){
+    st.style.display='block';
+    st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ';
+  }
+  busy=0;
 }
-if(!list.length){st.style.display='block';st.textContent='НИЧЕГО НЕ НАЙДЕНО'}
-}catch(e){st.style.display='block';st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ'}
-busy=0;
-}
+
 function go(){
-done=1;intro.style.display='none';scare.style.display='flex';scream();
-let f=0;const iv=setInterval(()=>{scare.style.background=f++%2?'#000':'#ff003c';scare.style.color=f%2?'#ff003c':'#fff'},50);
-setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pig.style.display='flex';main.style.display='block';loadAnime()},750);
+  done=1;
+  intro.style.display='none';
+  scare.style.display='flex';
+  scream();
+  let f=0;
+  const iv=setInterval(function(){
+    scare.style.background=f++%2?'#000':'#ff003c';
+    scare.style.color=f%2?'#ff003c':'#fff';
+  },50);
+  setTimeout(function(){
+    clearInterval(iv);
+    scare.style.display='none';
+    c.style.display='block';
+    pig.style.display='flex';
+    main.style.display='block';
+    loadAnime();
+    drawRain();
+  },750);
 }
-function loop(now){
-requestAnimationFrame(loop);
-if(last===null)last=now;
-const dt=now-last;last=now;
-if(hov&&!done){hold+=dt;bar.style.width=Math.min(100,hold/100)+'%';btn.textContent='ДЕРЖИ: '+Math.max(0,10-hold/1000).toFixed(1)+'с';if(hold>=10000)go()}
-else if(!done)btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
-if(!done)return;
-x.fillStyle='rgba(5,5,5,.3)';x.fillRect(0,0,w,ht);x.font='14px "Courier New",monospace';
-for(let i=0;i<cols.length;i++){x.fillStyle=Math.random()>.92?'rgba(255,0,60,.4)':'rgba(0,240,255,.22)';x.fillText(Math.random()>.5?'1':'0',i*18,cols[i]);cols[i]+=16;if(cols[i]>ht&&Math.random()>.95)cols[i]=0}
+
+function drawRain(){
+  requestAnimationFrame(drawRain);
+  x.fillStyle='rgba(5,5,5,0.3)';
+  x.fillRect(0,0,w,ht);
+  x.font='14px "Courier New",monospace';
+  for(let i=0;i<cols.length;i++){
+    x.fillStyle=Math.random()>0.92?'rgba(255,0,60,0.4)':'rgba(0,240,255,0.22)';
+    x.fillText(Math.random()>0.5?'1':'0',i*18,cols[i]);
+    cols[i]+=16;
+    if(cols[i]>ht&&Math.random()>0.95)cols[i]=0;
+  }
 }
-requestAnimationFrame(loop);
 </script>
 </body>
 </html>
