@@ -21,119 +21,92 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            user-select: none;
         }
 
-        /* Эффект старого монитора (сканлайны) */
-        body::after {
-            content: "";
-            position: absolute;
+        .scanlines {
+            position: fixed;
             inset: 0;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.25) 0px,
-                rgba(0, 0, 0, 0.25) 1px,
+                rgba(0, 0, 0, 0.28) 0px,
+                rgba(0, 0, 0, 0.28) 1px,
                 transparent 1px,
                 transparent 3px
             );
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
         }
 
-        /* Кнопка со сдвигом RGB красок */
         #start-btn {
             position: relative;
-            z-index: 5;
-            padding: 22px 54px;
+            z-index: 15;
+            padding: 24px 60px;
             font-size: 28px;
             font-weight: 900;
             font-family: inherit;
             letter-spacing: 6px;
             color: #fff;
-            background: #080808;
+            background: #0a0a0a;
             border: 2px solid #fff;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: -5px 0 0 #ff003c, 5px 0 0 #00f0ff, 0 0 25px rgba(255, 0, 60, 0.3);
+            box-shadow: -5px 0 0 #ff003c, 5px 0 0 #00f0ff, 0 0 30px rgba(255, 0, 60, 0.35);
             text-shadow: -2px 0 #ff003c, 2px 0 #00f0ff;
-            transition: transform 0.1s ease;
-            animation: idle-glitch 3s infinite;
         }
 
         #start-btn:hover {
-            animation: hard-glitch 0.25s infinite;
-            background: #111;
+            animation: hard-glitch 0.22s infinite;
+            background: #141414;
         }
 
-        #start-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Холст для 3D свиньи */
         canvas {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             display: none;
-            z-index: 2;
+            z-index: 5;
         }
 
-        /* Подсказка снизу */
         #hint {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             font-size: 12px;
             letter-spacing: 2px;
-            color: #666;
+            color: #888;
             text-shadow: -1px 0 #ff003c, 1px 0 #00f0ff;
             display: none;
-            z-index: 5;
+            z-index: 15;
             pointer-events: none;
-        }
-
-        @keyframes idle-glitch {
-            0%, 92%, 100% {
-                box-shadow: -4px 0 0 #ff003c, 4px 0 0 #00f0ff;
-                text-shadow: -2px 0 #ff003c, 2px 0 #00f0ff;
-            }
-            94% {
-                box-shadow: 6px -2px 0 #ff003c, -6px 2px 0 #00f0ff;
-                text-shadow: 3px 0 #00ff41, -3px 0 #ff003c;
-                transform: translate(-2px, 1px);
-            }
-            96% {
-                box-shadow: -6px 2px 0 #00ff41, 6px -2px 0 #ff003c;
-                transform: translate(2px, -1px);
-            }
+            text-align: center;
+            width: 100%;
         }
 
         @keyframes hard-glitch {
             0% {
-                transform: translate(0);
                 box-shadow: -6px 0 0 #ff003c, 6px 0 0 #00f0ff;
+                text-shadow: -3px 0 #ff003c, 3px 0 #00f0ff;
             }
-            25% {
-                transform: translate(-3px, 2px);
+            33% {
                 box-shadow: 7px -2px 0 #00ff41, -7px 2px 0 #ff003c;
+                text-shadow: 3px 0 #00ff41, -3px 0 #ff003c;
             }
-            50% {
-                transform: translate(3px, -2px);
+            66% {
                 box-shadow: -5px 3px 0 #00f0ff, 5px -3px 0 #ff003c;
-            }
-            75% {
-                transform: translate(-2px, -2px);
-                box-shadow: 6px 0 0 #ff003c, -6px 0 0 #00ff41;
+                text-shadow: -2px 0 #00f0ff, 2px 0 #ff003c;
             }
             100% {
-                transform: translate(0);
+                box-shadow: 6px 0 0 #ff003c, -6px 0 0 #00ff41;
             }
         }
     </style>
 </head>
 <body>
 
-    <button id="start-btn">НАЖМИ</button>
+    <div class="scanlines"></div>
+    <button id="start-btn" onclick="startPig()">НАЖМИ</button>
     <div id="hint">[ ДВИГАЙ МЫШЬЮ ДЛЯ ВРАЩЕНИЯ // СКРОЛЛ ДЛЯ ЗУМА ]</div>
     <canvas id="scene"></canvas>
 
@@ -148,7 +121,6 @@
         let isRunning = false;
         let buildProgress = 0;
 
-        // Углы вращения 3D модели
         let rotX = 0.25;
         let rotY = 0.6;
         let targetRotX = 0.25;
@@ -164,16 +136,27 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // Генератор 3D точек в форме свиньи
+        function createPoint(x, y, z, part) {
+            return {
+                x: x,
+                y: y,
+                z: z,
+                sx: (Math.random() - 0.5) * 14,
+                sy: (Math.random() - 0.5) * 14,
+                sz: (Math.random() - 0.5) * 14,
+                char: Math.random() > 0.5 ? '1' : '0',
+                part: part,
+                flickerSpeed: 0.02 + Math.random() * 0.08
+            };
+        }
+
         function generatePigPoints() {
             const pts = [];
 
-            // Вспомогательная функция для создания эллипсоидов и цилиндров
             function addEllipsoid(cx, cy, cz, rx, ry, rz, count, part) {
                 for (let i = 0; i < count; i++) {
                     const u = Math.random() * Math.PI * 2;
                     const v = Math.acos(2 * Math.random() - 1);
-                    // Слегка распределяем точки по поверхности и внутри оболочки
                     const shell = 0.88 + Math.random() * 0.12;
                     const x = cx + rx * shell * Math.sin(v) * Math.cos(u);
                     const y = cy + ry * shell * Math.sin(v) * Math.sin(u);
@@ -194,26 +177,17 @@
                 }
             }
 
-            // 1. Туловище
             addEllipsoid(0, 0, 0, 1.45, 0.92, 0.88, 950, 'body');
-
-            // 2. Голова
             addEllipsoid(1.38, -0.18, 0, 0.68, 0.62, 0.60, 480, 'head');
-
-            // 3. Пятачок
             addEllipsoid(2.02, -0.10, 0, 0.22, 0.27, 0.29, 170, 'snout');
-
-            // 4. Уши (левое и правое)
             addEllipsoid(1.30, -0.78, 0.36, 0.24, 0.32, 0.08, 95, 'ear');
             addEllipsoid(1.30, -0.78, -0.36, 0.24, 0.32, 0.08, 95, 'ear');
 
-            // 5. Четыре ноги
             addCylinder(0.78, 0.55, 0.44, 0.78, 1.38, 0.44, 0.20, 110, 'leg');
             addCylinder(0.78, 0.55, -0.44, 0.78, 1.38, -0.44, 0.20, 110, 'leg');
             addCylinder(-0.82, 0.55, 0.44, -0.82, 1.38, 0.44, 0.20, 110, 'leg');
             addCylinder(-0.82, 0.55, -0.44, -0.82, 1.38, -0.44, 0.20, 110, 'leg');
 
-            // 6. Хвостик крючком
             for (let i = 0; i < 85; i++) {
                 const t = i / 85;
                 const angle = t * Math.PI * 3.5;
@@ -223,30 +197,26 @@
                 pts.push(createPoint(x, y, z, 'tail'));
             }
 
-            // Перемешиваем точки для красивой отрисовки появления
-            return pts.sort(() => Math.random() - 0.5);
+            return pts.sort(function() { return Math.random() - 0.5; });
         }
 
-        function createPoint(x, y, z, part) {
-            return {
-                x, y, z,
-                // Случайная стартовая позиция для эффекта сборки
-                sx: (Math.random() - 0.5) * 12,
-                sy: (Math.random() - 0.5) * 12,
-                sz: (Math.random() - 0.5) * 12,
-                char: Math.random() > 0.5 ? '1' : '0',
-                part,
-                flickerSpeed: 0.02 + Math.random() * 0.08
-            };
+        function startPig() {
+            if (isRunning) return;
+            btn.style.display = 'none';
+            canvas.style.display = 'block';
+            hint.style.display = 'block';
+            resize();
+            points = generatePigPoints();
+            isRunning = true;
+            animate();
         }
 
-        // Управление мышью и тачскрином
-        window.addEventListener('mousedown', (e) => {
+        window.addEventListener('mousedown', function(e) {
             isDragging = true;
             prevMouse = { x: e.clientX, y: e.clientY };
         });
-        window.addEventListener('mouseup', () => isDragging = false);
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener('mouseup', function() { isDragging = false; });
+        window.addEventListener('mousemove', function(e) {
             if (!isDragging) return;
             const dx = e.clientX - prevMouse.x;
             const dy = e.clientY - prevMouse.y;
@@ -255,19 +225,19 @@
             prevMouse = { x: e.clientX, y: e.clientY };
         });
 
-        window.addEventListener('wheel', (e) => {
+        window.addEventListener('wheel', function(e) {
             zoom -= e.deltaY * 0.001;
             zoom = Math.max(0.5, Math.min(2.2, zoom));
         });
 
-        // Сенсорное управление для телефонов
-        window.addEventListener('touchstart', (e) => {
+        window.addEventListener('touchstart', function(e) {
+            if (!e.touches.length) return;
             isDragging = true;
             prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         });
-        window.addEventListener('touchend', () => isDragging = false);
-        window.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
+        window.addEventListener('touchend', function() { isDragging = false; });
+        window.addEventListener('touchmove', function(e) {
+            if (!isDragging || !e.touches.length) return;
             const dx = e.touches[0].clientX - prevMouse.x;
             const dy = e.touches[0].clientY - prevMouse.y;
             targetRotY += dx * 0.01;
@@ -275,17 +245,87 @@
             prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         });
 
-        // Запуск при клике на кнопку
-        btn.addEventListener('click', () => {
-            btn.style.display = 'none';
-            canvas.style.display = 'block';
-            hint.style.display = 'block';
-            points = generatePigPoints();
-            isRunning = true;
-            animate();
-        });
-
         function animate() {
             if (!isRunning) return;
             requestAnimationFrame(animate);
 
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.35)';
+            ctx.fillRect(0, 0, width, height);
+
+            if (buildProgress < 1) {
+                buildProgress += 0.018;
+                if (buildProgress > 1) buildProgress = 1;
+            }
+            const ease = 1 - Math.pow(1 - buildProgress, 3);
+
+            if (!isDragging) {
+                targetRotY += 0.007;
+            }
+            rotX += (targetRotX - rotX) * 0.1;
+            rotY += (targetRotY - rotY) * 0.1;
+
+            const cosY = Math.cos(rotY);
+            const sinY = Math.sin(rotY);
+            const cosX = Math.cos(rotX);
+            const sinX = Math.sin(rotX);
+
+            const baseScale = Math.min(width, height) * 0.26 * zoom;
+            const projected = [];
+
+            const glitchTrigger = Math.random() > 0.96;
+            const rgbSplit = glitchTrigger ? (Math.random() * 14 + 4) : 2.5;
+
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+
+                if (Math.random() < p.flickerSpeed) {
+                    p.char = p.char === '0' ? '1' : '0';
+                }
+
+                const cx = p.sx + (p.x - p.sx) * ease;
+                const cy = p.sy + (p.y - p.sy) * ease;
+                const cz = p.sz + (p.z - p.sz) * ease;
+
+                const x1 = cx * cosY - cz * sinY;
+const z1 = cz * cosY + cx * sinY;
+const y2 = cy * cosX - z1 * sinX;
+const z2 = z1 * cosX + cy * sinX;
+const fov = 4.2;
+const scale = fov / (fov + z2);
+const screenX = width / 2 + x1 * baseScale * scale;
+const screenY = height / 2 + y2 * baseScale * scale;
+projected.push({
+x: screenX,
+y: screenY,
+z: z2,
+scale: scale,
+char: p.char,
+part: p.part
+});
+}
+projected.sort(function(a, b) { return b.z - a.z; });
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+for (let i = 0; i < projected.length; i++) {
+const pt = projected[i];
+if (pt.scale <= 0) continue;
+const fontSize = Math.max(8, Math.round(13 * pt.scale));
+ctx.font = 'bold ' + fontSize + 'px "Courier New", monospace';
+const alpha = Math.max(0.2, Math.min(1, (1.8 - pt.z) / 2.5));
+let rowShift = 0;
+if (glitchTrigger && Math.sin(pt.y * 0.1) > 0.7) {
+rowShift = (Math.random() - 0.5) * 25;
+}
+const drawX = pt.x + rowShift;
+ctx.fillStyle = 'rgba(255, 0, 60, ' + (alpha * 0.85) + ')';
+ctx.fillText(pt.char, drawX - rgbSplit * pt.scale, pt.y);
+ctx.fillStyle = 'rgba(0, 240, 255, ' + (alpha * 0.85) + ')';
+ctx.fillText(pt.char, drawX + rgbSplit * pt.scale, pt.y);
+if (pt.part === 'snout' || pt.part === 'ear') {
+ctx.fillStyle = 'rgba(255, 180, 220, ' + alpha + ')';
+} else {
+ctx.fillStyle = 'rgba(255, 255, 255, ' + (alpha * 0.9) + ')';
+}
+ctx.fillText(pt.char, drawX, pt.y);
+}
+}
