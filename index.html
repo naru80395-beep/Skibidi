@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>HRYAK_ANIME // LIVE_DB</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -20,13 +21,13 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1}
 .top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff;padding-bottom:15px;box-shadow:0 4px 0 #ff003c}
 h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 .sbox{display:flex;gap:8px}
-#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:240px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
+#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:250px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
 #sb{padding:10px 18px;background:#fff;color:#000;font-weight:900;font-family:inherit;border:none;cursor:pointer;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
 #sb:hover{background:#ff003c;color:#fff}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
 .card{background:rgba(10,10,12,.88);border:1px solid #444;padding:12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff;transition:.15s}
 .card:hover{transform:translateY(-4px);border-color:#fff}
-.poster{width:100%;height:260px;object-fit:cover;margin-bottom:10px;border:1px solid #333}
+.poster{width:100%;height:260px;object-fit:cover;margin-bottom:10px;border:1px solid #333;background:#111}
 .ttl{font-size:16px;font-weight:900;margin-bottom:8px;line-height:1.25}
 .rt{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;font-weight:700;color:#00ff88}
 .go{display:block;text-align:center;padding:10px;background:#fff;color:#000;font-weight:900;text-decoration:none;letter-spacing:2px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
@@ -54,13 +55,13 @@ h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </svg>
 </div>
 <div id="main">
-<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Naruto..." onkeydown="if(event.key==='Enter')loadAnime()"><button id="sb" onclick="loadAnime()">НАЙТИ</button></div></div>
+<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Bleach..." onkeydown="if(event.key==='Enter')loadAnime()"><button id="sb" onclick="loadAnime()">НАЙТИ</button></div></div>
 <div id="st">ЗАГРУЗКА ИЗ АРХИВА...</div>
 <div class="grid" id="grid"></div>
 </div>
 <script>
 const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid'),st=document.getElementById('st');
-let w,ht,hold=0,hov=0,last=0,done=0,actx,cols=[];
+let w,ht,hold=0,hov=0,last=null,done=0,busy=0,actx,cols=[];
 function rsz(){w=c.width=innerWidth;ht=c.height=innerHeight;cols=Array(Math.floor(w/18)).fill(0).map(()=>Math.random()*ht)}
 addEventListener('resize',rsz);rsz();
 function aud(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}
@@ -68,22 +69,43 @@ addEventListener('pointerdown',aud);
 btn.addEventListener('pointerenter',()=>{aud();hov=1;btn.classList.add('act')});
 btn.addEventListener('pointerleave',()=>{if(!done){hov=0;hold=0;bar.style.width='0%';btn.classList.remove('act')}});
 function scream(){
+try{
 aud();const t=actx.currentTime,g=actx.createGain();g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.01,t+1.1);g.connect(actx.destination);
-const fr=[420,890,1450];for(let i=0;i<fr.length;i++){const o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(fr[i],t);o.frequency.linearRampToValueAtTime(fr[i]*1.8,t+.2);o.connect(g);o.start(t);o.stop(t+1.1)}
+const o1=actx.createOscillator(),o2=actx.createOscillator();o1.type='sawtooth';o2.type='square';
+o1.frequency.setValueAtTime(420,t);o1.frequency.linearRampToValueAtTime(1100,t+.25);
+o2.frequency.setValueAtTime(890,t);o2.frequency.linearRampToValueAtTime(310,t+.9);
+o1.connect(g);o2.connect(g);o1.start(t);o2.start(t);o1.stop(t+1.1);o2.stop(t+1.1);
+}catch(e){}
 }
 async function loadAnime(){
+if(busy)return;busy=1;
 const q=document.getElementById('q').value.trim();
-st.style.display='block';grid.innerHTML='';
+st.style.display='block';st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';grid.innerHTML='';
 const api=q?'https://jikan.moe';
 try{
-const res=await fetch(api);const json=await res.json();st.style.display='none';
-const list=json.data||[];let out='';
+const res=await fetch(api);
+if(!res.ok)throw new Error('HTTP');
+const json=await res.json();st.style.display='none';
+const list=json.data||[];
 for(let i=0;i<list.length;i++){
-const a=list[i];const img=a.images.jpg.image_url;const sc=a.score||'—';const ep=a.episodes?a.episodes+' эп.':'онгоинг';
-out+='<div class="card"><div><img class="poster" src="'+img+'"><div class="ttl">'+a.title+'</div></div><div><div class="rt"><span>★ '+sc+'</span><span>'+ep+'</span></div><a class="go" target="_blank" href="'+a.url+'">СМОТРЕТЬ</a></div></div>';
+const a=list[i];
+const card=document.createElement('div');card.className='card';
+const top=document.createElement('div');
+const img=document.createElement('img');img.className='poster';
+img.src=(a.images&&a.images.jpg&&a.images.jpg.image_url)?a.images.jpg.image_url:'';
+const ttl=document.createElement('div');ttl.className='ttl';ttl.textContent=a.title_english||a.title||'Без названия';
+top.appendChild(img);top.appendChild(ttl);
+const bot=document.createElement('div');
+const rt=document.createElement('div');rt.className='rt';
+rt.innerHTML='<span>★ '+(a.score||'—')+'</span><span>'+(a.episodes?a.episodes+' эп.':'онгоинг')+'</span>';
+const link=document.createElement('a');link.className='go';link.target='_blank';link.rel='noopener';link.textContent='СМОТРЕТЬ';
+link.href='https://shikimori.io;
+bot.appendChild(rt);bot.appendChild(link);card.appendChild(top);card.appendChild(bot);
+grid.appendChild(card);
 }
-grid.innerHTML=out||'<div style="color:#ff003c">НИЧЕГО НЕ НАЙДЕНО</div>';
-}catch(e){st.textContent='ОШИБКА СОЕДИНЕНИЯ С АРХИВОМ'}
+if(!list.length){st.style.display='block';st.textContent='НИЧЕГО НЕ НАЙДЕНО'}
+}catch(e){st.style.display='block';st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ'}
+busy=0;
 }
 function go(){
 done=1;intro.style.display='none';scare.style.display='flex';scream();
@@ -91,7 +113,9 @@ let f=0;const iv=setInterval(()=>{scare.style.background=f++%2?'#000':'#ff003c';
 setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pig.style.display='flex';main.style.display='block';loadAnime()},750);
 }
 function loop(now){
-requestAnimationFrame(loop);const dt=now-last;last=now;
+requestAnimationFrame(loop);
+if(last===null)last=now;
+const dt=now-last;last=now;
 if(hov&&!done){hold+=dt;bar.style.width=Math.min(100,hold/100)+'%';btn.textContent='ДЕРЖИ: '+Math.max(0,10-hold/1000).toFixed(1)+'с';if(hold>=10000)go()}
 else if(!done)btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
 if(!done)return;
@@ -102,3 +126,4 @@ requestAnimationFrame(loop);
 </script>
 </body>
 </html>
+
