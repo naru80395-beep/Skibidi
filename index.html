@@ -4,27 +4,27 @@
 <meta charset="UTF-8">
 <title>HRYAK_ANIME</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#050505;color:#fff;font-family:monospace;min-height:100vh;overflow-x:hidden}
-#intro{position:fixed;inset:0;display:flex;flex-direction:column;gap:20px;justify-content:center;align-items:center;z-index:20;background:#050505}
-#btn{padding:25px 45px;font-size:22px;font-weight:900;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff}
-#skip{background:none;border:1px solid #444;color:#777;padding:6px 12px;cursor:pointer;font-size:12px}
-#bw{position:fixed;bottom:0;left:0;width:100%;height:14px;background:#111;z-index:25}
-#bar{width:0%;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff)}
-#scare{position:fixed;inset:0;background:#ff003c;z-index:60;display:none;justify-content:center;align-items:center;font-size:11vw;font-weight:900;color:#000}
-canvas{position:fixed;inset:0;display:none;z-index:1}
-#pig{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.35}
-#pig svg{width:min(80vw,580px);filter:drop-shadow(-6px 0 0 #ff003c) drop-shadow(6px 0 0 #00f0ff)}
-#main{position:relative;z-index:10;display:none;max-width:1100px;margin:0 auto;padding:25px 15px}
-.top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #fff;padding-bottom:12px}
-#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px;width:230px}
-#sb{padding:10px 16px;background:#fff;color:#000;font-weight:900;border:none;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:15px}
-.card{background:rgba(10,10,12,.9);border:1px solid #555;padding:10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff}
-.poster{width:100%;height:250px;object-fit:cover;margin-bottom:8px}
-.ttl{font-size:15px;font-weight:900;margin-bottom:8px}
-.rt{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:#0f8}
-.go{display:block;text-align:center;padding:9px;background:#fff;color:#000;font-weight:900;text-decoration:none}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #050505; color: #fff; font-family: monospace; min-height: 100vh; overflow-x: hidden; }
+#intro { position: fixed; inset: 0; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; z-index: 20; background: #050505; }
+#btn { padding: 25px 45px; font-size: 22px; font-weight: 900; color: #fff; background: #0a0a0a; border: 2px solid #fff; cursor: pointer; box-shadow: -5px 0 0 #ff003c, 5px 0 0 #00f0ff; }
+#skip { background: none; border: 1px solid #444; color: #777; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+#bw { position: fixed; bottom: 0; left: 0; width: 100%; height: 14px; background: #111; z-index: 25; }
+#bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff003c, #00f0ff); }
+#scare { position: fixed; inset: 0; background: #ff003c; z-index: 60; display: none; justify-content: center; align-items: center; font-size: 11vw; font-weight: 900; color: #000; }
+canvas { position: fixed; inset: 0; display: none; z-index: 1; }
+#pig { position: fixed; inset: 0; display: none; justify-content: center; align-items: center; z-index: 2; pointer-events: none; opacity: 0.35; }
+#pig svg { width: min(80vw, 580px); filter: drop-shadow(-6px 0 0 #ff003c) drop-shadow(6px 0 0 #00f0ff); }
+#main { position: relative; z-index: 10; display: none; max-width: 1100px; margin: 0 auto; padding: 25px 15px; }
+.top { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #fff; padding-bottom: 12px; }
+#q { background: #0a0a0a; border: 2px solid #fff; color: #fff; padding: 10px; width: 230px; }
+#sb { padding: 10px 16px; background: #fff; color: #000; font-weight: 900; border: none; cursor: pointer; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 15px; }
+.card { background: rgba(10,10,12,0.9); border: 1px solid #555; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: -4px 0 0 #ff003c, 4px 0 0 #00f0ff; }
+.poster { width: 100%; height: 250px; object-fit: cover; margin-bottom: 8px; }
+.ttl { font-size: 15px; font-weight: 900; margin-bottom: 8px; }
+.rt { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #0f8; }
+.go { display: block; text-align: center; padding: 9px; background: #fff; color: #000; font-weight: 900; text-decoration: none; }
 </style>
 </head>
 <body>
@@ -35,34 +35,140 @@ canvas{position:fixed;inset:0;display:none;z-index:1}
 </div>
 <div id="scare">01_ХРЯК_01</div>
 <canvas id="c"></canvas>
-<div id="pig"><svg viewBox="0 0 320 300"><path d="M125 46 Q160 32 195 46 L190 56 Q160 46 130 56 Z" fill="#2b1b17"/><path d="M125 50 C92 75 65 140 68 205 C71 255 115 274 165 274 C225 274 268 248 265 190 C262 135 225 72 195 50 Z" fill="#e5a996" stroke="#2b1b17" stroke-width="4"/><path d="M88 185 Q140 205 235 175 M82 212 Q145 234 248 202 M90 238 Q155 258 240 230" fill="none" stroke="#9e6252" stroke-width="3.5"/><circle cx="136" cy="84" r="5" fill="#1a1110"/><circle cx="182" cy="84" r="5" fill="#1a1110"/><ellipse cx="122" cy="142" rx="48" ry="36" fill="#f2b5a7" stroke="#2b1b17" stroke-width="4"/><ellipse cx="104" cy="142" rx="9" ry="13" fill="#4a2520"/><ellipse cx="138" cy="142" rx="9" ry="13" fill="#4a2520"/><path d="M108 266 L104 286 L116 286 L118 268 M212 264 L216 285 L228 285 L224 262" fill="#c78876" stroke="#2b1b17" stroke-width="3"/></svg></div>
+<div id="pig">
+  <svg viewBox="0 0 320 300">
+    <path d="M125 46 Q160 32 195 46 L190 56 Q160 46 130 56 Z" fill="#2b1b17"/>
+    <path d="M125 50 C92 75 65 140 68 205 C71 255 115 274 165 274 C225 274 268 248 265 190 C262 135 225 72 195 50 Z" fill="#e5a996" stroke="#2b1b17" stroke-width="4"/>
+    <path d="M88 185 Q140 205 235 175 M82 212 Q145 234 248 202 M90 238 Q155 258 240 230" fill="none" stroke="#9e6252" stroke-width="3.5"/>
+    <circle cx="136" cy="84" r="5" fill="#1a1110"/>
+    <circle cx="182" cy="84" r="5" fill="#1a1110"/>
+    <ellipse cx="122" cy="142" rx="48" ry="36" fill="#f2b5a7" stroke="#2b1b17" stroke-width="4"/>
+    <ellipse cx="104" cy="142" rx="9" ry="13" fill="#4a2520"/>
+    <ellipse cx="138" cy="142" rx="9" ry="13" fill="#4a2520"/>
+    <path d="M108 266 L104 286 L116 286 L118 268 M212 264 L216 285 L228 285 L224 262" fill="#c78876" stroke="#2b1b17" stroke-width="3"/>
+  </svg>
+</div>
 <div id="main">
-  <div class="top"><h2>HRYAK_ARCHIVE</h2><div><input id="q" placeholder="One Piece..." onkeydown="if(event.key==='Enter')load()"><button id="sb" onclick="load()">НАЙТИ</button></div></div>
+  <div class="top">
+    <h2>HRYAK_ARCHIVE</h2>
+    <div>
+      <input id="q" placeholder="One Piece..." onkeydown="if(event.key==='Enter')load()">
+      <button id="sb" onclick="load()">НАЙТИ</button>
+    </div>
+  </div>
   <div id="st" style="color:#0ff;margin-bottom:15px"></div>
   <div class="grid" id="grid"></div>
 </div>
 <script>
-let ms=0,tm=null,done=0,cols=[];
-function rsz(){const c=document.getElementById('c');c.width=innerWidth;c.height=innerHeight;cols=[];for(let i=0;i<c.width/18;i++)cols.push(Math.random()*c.height)}
-window.onresize=rsz;rsz();
-function stH(){if(done||tm)return;tm=setInterval(function(){ms+=100;document.getElementById('bar').style.width=(ms/100)+'%';document.getElementById('btn').textContent='ДЕРЖИ: '+Math.max(0,10-ms/1000).toFixed(1)+'с';if(ms>=10000){clearInterval(tm);go()}},100)}
-function spH(){if(done)return;clearInterval(tm);tm=null;ms=0;document.getElementById('bar').style.width='0%';document.getElementById('btn').textContent='НАВЕДИ И ДЕРЖИ 10 СЕК'}
-function go(){
-  if(done)return;done=1;document.getElementById('intro').style.display='none';
-  const sc=document.getElementById('scare');sc.style.display='flex';
-  try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),gn=a.createGain();o.type='sawtooth';o.frequency.value=600;gn.gain.value=0.8;o.connect(gn);gn.connect(a.destination);o.start();setTimeout(()=>o.stop(),700)}catch(e){}
-  setTimeout(function(){sc.style.display='none';document.getElementById('c').style.display='block';document.getElementById('pig').style.display='flex';document.getElementById('main').style.display='block';load();rain()},700);
+let ms = 0;
+let tm = null;
+let done = 0;
+let cols = [];
+
+function rsz() {
+  const c = document.getElementById('c');
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+  cols = [];
+  for (let i = 0; i < c.width / 18; i++) {
+    cols.push(Math.random() * c.height);
+  }
 }
-async function load(){
-  const q=document.getElementById('q').value.trim(),g=document.getElementById('grid'),st=document.getElementById('st');
-  st.textContent='ЗАГРУЗКА...';g.innerHTML='';
-  const u=q?'https://jikan.moe';
-  try{const r=await fetch(u),j=await r.json();st.textContent='';(j.data||[]).forEach(a=>{
-    const d=document.createElement('div');d.className='card';
-    d.innerHTML='<div><img class="poster" src="'+a.images.jpg.image_url+'"><div class="ttl">'+(a.title_english||a.title)+'</div></div><div><div class="rt"><span>★ '+(a.score||'—')+'</span><span>'+(a.episodes||'?')+' эп.</span></div><a class="go" target="_blank" href="https://shikimori.io+'">СМОТРЕТЬ</a></div>';
-    g.appendChild(d)})}catch(e){st.textContent='ОШИБКА СЕТИ'}
+window.onresize = rsz;
+rsz();
+
+function stH() {
+  if (done || tm) return;
+  tm = setInterval(function() {
+    ms += 100;
+    document.getElementById('bar').style.width = (ms / 100) + '%';
+    document.getElementById('btn').textContent = 'ДЕРЖИ: ' + Math.max(0, 10 - ms / 1000).toFixed(1) + 'с';
+    if (ms >= 10000) {
+      clearInterval(tm);
+      go();
+    }
+  }, 100);
 }
-function rain(){const c=document.getElementById('c'),x=c.getContext('2d');requestAnimationFrame(rain);x.fillStyle='rgba(5,5,5,.3)';x.fillRect(0,0,c.width,c.height);x.font='14px monospace';for(let i=0;i<cols.length;i++){x.fillStyle=Math.random()>.9?'#ff003c':'#00f0ff';x.fillText(Math.random()>.5?'1':'0',i*18,cols[i]);cols[i]+=16;if(cols[i]>c.height&&Math.random()>.95)cols[i]=0}}
+
+function spH() {
+  if (done) return;
+  clearInterval(tm);
+  tm = null;
+  ms = 0;
+  document.getElementById('bar').style.width = '0%';
+  document.getElementById('btn').textContent = 'НАВЕДИ И ДЕРЖИ 10 СЕК';
+}
+
+function go() {
+  if (done) return;
+  done = 1;
+  document.getElementById('intro').style.display = 'none';
+  const sc = document.getElementById('scare');
+  sc.style.display = 'flex';
+  try {
+    const a = new (window.AudioContext || window.webkitAudioContext)();
+    const o = a.createOscillator();
+    const gn = a.createGain();
+    o.type = 'sawtooth';
+    o.frequency.value = 600;
+    gn.gain.value = 0.8;
+    o.connect(gn);
+    gn.connect(a.destination);
+    o.start();
+    setTimeout(function() { o.stop(); }, 700);
+  } catch (e) {}
+  setTimeout(function() {
+    sc.style.display = 'none';
+    document.getElementById('c').style.display = 'block';
+    document.getElementById('pig').style.display = 'flex';
+    document.getElementById('main').style.display = 'block';
+    load();
+    rain();
+  }, 700);
+}
+</script>
+<script>
+async function load() {
+  const q = document.getElementById('q').value.trim();
+  const g = document.getElementById('grid');
+  const st = document.getElementById('st');
+  st.textContent = 'ЗАГРУЗКА...';
+  g.innerHTML = '';
+  const u = q ? 'https://jikan.moe' + encodeURIComponent(q) : 'https://jikan.moe';
+  try {
+    const r = await fetch(u);
+    const j = await r.json();
+    st.textContent = '';
+    const list = j.data || [];
+    for (let i = 0; i < list.length; i++) {
+      const a = list[i];
+      const d = document.createElement('div');
+      d.className = 'card';
+      d.innerHTML = '<div><img class="poster" src="' + a.images.jpg.image_url + '"><div class="ttl">' + (a.title_english || a.title) + '</div></div><div><div class="rt"><span>★ ' + (a.score || '—') + '</span><span>' + (a.episodes || '?') + ' эп.</span></div><a class="go" target="_blank" href="https://shikimori.io' + encodeURIComponent(a.title) + '">СМОТРЕТЬ</a></div>';
+      g.appendChild(d);
+    }
+  } catch (e) {
+    st.textContent = 'ОШИБКА СЕТИ';
+  }
+}
+
+function rain() {
+  const c = document.getElementById('c');
+  const x = c.getContext('2d');
+  requestAnimationFrame(rain);
+  x.fillStyle = 'rgba(5,5,5,0.3)';
+  x.fillRect(0, 0, c.width, c.height);
+  x.font = '14px monospace';
+  for (let i = 0; i < cols.length; i++) {
+    x.fillStyle = Math.random() > 0.9 ? '#ff003c' : '#00f0ff';
+    x.fillText(Math.random() > 0.5 ? '1' : '0', i * 18, cols[i]);
+    cols[i] += 16;
+    if (cols[i] > c.height && Math.random() > 0.95) {
+      cols[i] = 0;
+    }
+  }
+}
 </script>
 </body>
 </html>
+
