@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HRYAK_ANIME // LIVE_DB</title>
+<title>HRYAK_ANIME // ARCHIVE</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;user-select:none}
@@ -39,10 +39,7 @@ h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </head>
 <body>
 <div class="scan"></div>
-<div id="intro">
-  <button id="btn" onmouseenter="startHold()" onmouseleave="stopHold()" onclick="startHold()">ДЕРЖИ КУРСОР 10 СЕК</button>
-  <div id="bw"><div id="bar"></div></div>
-</div>
+<div id="intro"><button id="btn">ДЕРЖИ КУРСОР 10 СЕК</button><div id="bw"><div id="bar"></div></div></div>
 <div id="scare">01_ХРЯК_01</div>
 <canvas id="c"></canvas>
 <div id="pig-bg">
@@ -58,145 +55,94 @@ h1{font-size:24px;letter-spacing:2px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
 </svg>
 </div>
 <div id="main">
-<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Bleach..." onkeydown="if(event.key==='Enter')loadAnime()"><button id="sb" onclick="loadAnime()">НАЙТИ</button></div></div>
-<div id="st">ЗАГРУЗКА ИЗ АРХИВА...</div>
+<div class="top"><h1>HRYAK_ARCHIVE // LIVE_DB</h1><div class="sbox"><input id="q" placeholder="One Piece, Naruto..."><button id="sb">НАЙТИ</button></div></div>
+<div id="st"></div>
 <div class="grid" id="grid"></div>
 </div>
 <script>
-const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid'),st=document.getElementById('st');
-let w=0,ht=0,ms=0,timer=null,done=0,busy=0,actx=null,cols=[];
+const btn=document.getElementById('btn'),bar=document.getElementById('bar'),c=document.getElementById('c'),x=c.getContext('2d'),grid=document.getElementById('grid'),st=document.getElementById('st');
+let ms=0,tm=null,done=0,cols=[];
+function rsz(){c.width=innerWidth;c.height=innerHeight;cols=[];for(let i=0;i<c.width/18;i++)cols.push(Math.random()*c.height)}
+window.onresize=rsz;rsz();
 
-function rsz(){
-  w=c.width=window.innerWidth;
-  ht=c.height=window.innerHeight;
-  cols=[];
-  const count=Math.floor(w/18);
-  for(let i=0;i<count;i++)cols.push(Math.random()*ht);
-}
-window.addEventListener('resize',rsz);
-rsz();
-
-function aud(){
-  try{
-    if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
-    if(actx.state==='suspended')actx.resume();
-  }catch(e){}
-}
-
-function startHold(){
-  if(done||timer)return;
-  aud();
+btn.onmouseenter=function(){
+  if(done||tm)return;
   btn.classList.add('act');
-  timer=setInterval(function(){
+  tm=setInterval(function(){
     ms+=50;
-    const pct=Math.min(100,(ms/10000)*100);
-    bar.style.width=pct+'%';
-    btn.textContent='ДЕРЖИ: '+Math.max(0,(10-ms/1000)).toFixed(1)+'с';
-    if(ms>=10000){
-      clearInterval(timer);
-      timer=null;
-      go();
-    }
+    bar.style.width=Math.min(100,ms/100)+'%';
+    btn.textContent='ДЕРЖИ: '+Math.max(0,10-ms/1000).toFixed(1)+'с';
+    if(ms>=10000){clearInterval(tm);go();}
   },50);
-}
-
-function stopHold(){
+};
+btn.onmouseleave=function(){
   if(done)return;
-  if(timer){clearInterval(timer);timer=null;}
-  ms=0;
-  bar.style.width='0%';
-  btn.classList.remove('act');
+  clearInterval(tm);tm=null;ms=0;
+  bar.style.width='0%';btn.classList.remove('act');
   btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
-}
+};
 
 function scream(){
   try{
-    aud();
-    const t=actx.currentTime,g=actx.createGain();
-    g.gain.setValueAtTime(0.9,t);
-    g.gain.exponentialRampToValueAtTime(0.01,t+1.1);
-    g.connect(actx.destination);
-    const o1=actx.createOscillator(),o2=actx.createOscillator();
+    const a=new(window.AudioContext||window.webkitAudioContext)();
+    const o1=a.createOscillator(),o2=a.createOscillator(),gn=a.createGain();
     o1.type='sawtooth';o2.type='square';
-    o1.frequency.setValueAtTime(420,t);o1.frequency.linearRampToValueAtTime(1100,t+0.25);
-    o2.frequency.setValueAtTime(890,t);o2.frequency.linearRampToValueAtTime(310,t+0.9);
-    o1.connect(g);o2.connect(g);
-    o1.start(t);o2.start(t);
-    o1.stop(t+1.1);o2.stop(t+1.1);
+    o1.frequency.setValueAtTime(420,a.currentTime);o1.frequency.linearRampToValueAtTime(1100,a.currentTime+0.25);
+    o2.frequency.setValueAtTime(890,a.currentTime);o2.frequency.linearRampToValueAtTime(310,a.currentTime+0.9);
+    gn.gain.setValueAtTime(0.85,a.currentTime);gn.gain.exponentialRampToValueAtTime(0.01,a.currentTime+1);
+    o1.connect(gn);o2.connect(gn);gn.connect(a.destination);
+    o1.start();o2.start();o1.stop(a.currentTime+1);o2.stop(a.currentTime+1);
   }catch(e){}
 }
 
-async function loadAnime(){
-  if(busy)return;
-  busy=1;
+async function load(){
   const q=document.getElementById('q').value.trim();
-  st.style.display='block';
-  st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';
-  grid.innerHTML='';
-  const api=q?'https://jikan.moe';
+  st.style.display='block';st.textContent='ЗАГРУЗКА ИЗ АРХИВА...';grid.innerHTML='';
+  const url=q?'https://jikan.moe';
   try{
-    const res=await fetch(api);
-    if(!res.ok)throw new Error('HTTP');
-    const json=await res.json();
+    const r=await fetch(url),j=await r.json();
     st.style.display='none';
-    const list=json.data||[];
+    const list=j.data||[];
     for(let i=0;i<list.length;i++){
       const a=list[i];
       const card=document.createElement('div');card.className='card';
-      const top=document.createElement('div');
-      const img=document.createElement('img');img.className='poster';
-      img.src=(a.images&&a.images.jpg&&a.images.jpg.image_url)?a.images.jpg.image_url:'';
-      const ttl=document.createElement('div');ttl.className='ttl';
-      ttl.textContent=a.title_english||a.title||'Без названия';
-      top.appendChild(img);top.appendChild(ttl);
-      const bot=document.createElement('div');
+      const img=document.createElement('img');img.className='poster';img.src=a.images.jpg.image_url;
+      const ttl=document.createElement('div');ttl.className='ttl';ttl.textContent=a.title_english||a.title;
+      const top=document.createElement('div');top.appendChild(img);top.appendChild(ttl);
       const rt=document.createElement('div');rt.className='rt';
       rt.innerHTML='<span>★ '+(a.score||'—')+'</span><span>'+(a.episodes?a.episodes+' эп.':'онгоинг')+'</span>';
-      const link=document.createElement('a');link.className='go';link.target='_blank';link.rel='noopener';link.textContent='СМОТРЕТЬ';
-      link.href='https://shikimori.io;
-      bot.appendChild(rt);bot.appendChild(link);
-      card.appendChild(top);card.appendChild(bot);
-      grid.appendChild(card);
+      const lnk=document.createElement('a');lnk.className='go';lnk.target='_blank';lnk.textContent='СМОТРЕТЬ';
+      lnk.href='https://shikimori.io;
+      const bot=document.createElement('div');bot.appendChild(rt);bot.appendChild(lnk);
+      card.appendChild(top);card.appendChild(bot);grid.appendChild(card);
     }
     if(!list.length){st.style.display='block';st.textContent='НИЧЕГО НЕ НАЙДЕНО';}
-  }catch(e){
-    st.style.display='block';
-    st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ';
-  }
-  busy=0;
+  }catch(e){st.textContent='ОШИБКА СЕТИ — ПОПРОБУЙ ЕЩЁ РАЗ';}
 }
 
+document.getElementById('sb').onclick=load;
+document.getElementById('q').onkeydown=function(e){if(e.key==='Enter')load();};
+
 function go(){
-  done=1;
-  intro.style.display='none';
-  scare.style.display='flex';
-  scream();
-  let f=0;
-  const iv=setInterval(function(){
-    scare.style.background=f++%2?'#000':'#ff003c';
-    scare.style.color=f%2?'#ff003c':'#fff';
-  },50);
+  done=1;document.getElementById('intro').style.display='none';
+  const sc=document.getElementById('scare');sc.style.display='flex';scream();
+  let f=0,iv=setInterval(function(){sc.style.background=f++%2?'#000':'#ff003c';sc.style.color=f%2?'#ff003c':'#fff';},50);
   setTimeout(function(){
-    clearInterval(iv);
-    scare.style.display='none';
-    c.style.display='block';
-    pig.style.display='flex';
-    main.style.display='block';
-    loadAnime();
-    drawRain();
+    clearInterval(iv);sc.style.display='none';c.style.display='block';
+    document.getElementById('pig-bg').style.display='flex';
+    document.getElementById('main').style.display='block';
+    load();rain();
   },750);
 }
 
-function drawRain(){
-  requestAnimationFrame(drawRain);
-  x.fillStyle='rgba(5,5,5,0.3)';
-  x.fillRect(0,0,w,ht);
-  x.font='14px "Courier New",monospace';
+function rain(){
+  requestAnimationFrame(rain);
+  x.fillStyle='rgba(5,5,5,0.3)';x.fillRect(0,0,c.width,c.height);
+  x.font='14px monospace';
   for(let i=0;i<cols.length;i++){
-    x.fillStyle=Math.random()>0.92?'rgba(255,0,60,0.4)':'rgba(0,240,255,0.22)';
+    x.fillStyle=Math.random()>0.9?'#ff003c':'#00f0ff';
     x.fillText(Math.random()>0.5?'1':'0',i*18,cols[i]);
-    cols[i]+=16;
-    if(cols[i]>ht&&Math.random()>0.95)cols[i]=0;
+    cols[i]+=16;if(cols[i]>c.height&&Math.random()>0.95)cols[i]=0;
   }
 }
 </script>
