@@ -1,166 +1,21 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кибер-Хряк Кликер</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #050505;
-      color: #fff;
-      font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    /* Фон с матрицей */
-    #c {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -1;
-    }
-    /* Счётчик очков */
-    #score {
-      font-size: 48px;
-      font-weight: bold;
-      margin-top: 20px;
-      text-shadow: -2px 0 #ff003c, 2px 0 #00f0ff;
-    }
-    #sub {
-      color: #00f0ff;
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-    /* Кнопка-персонаж (сюда можно вставить твою картинку свинки) */
-    #pig-btn {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #ff9a9e 0%, #fecfef 100%);
-      border: 4px solid #00f0ff;
-      box-shadow: -4px 0 15px #ff003c, 4px 0 15px #00f0ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 80px;
-      cursor: pointer;
-      transition: transform 0.05s;
-      margin-bottom: 30px;
-    }
-    #pig-btn:active {
-      transform: scale(0.92);
-    }
-    /* Всплывающий текст при клике */
-    .pop {
-      position: fixed;
-      color: #00f0ff;
-      font-weight: bold;
-      font-size: 20px;
-      pointer-events: none;
-      text-shadow: 1px 1px #ff003c;
-      animation: floatUp 0.75s ease-out forwards;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-40px); }
-    }
-    /* Магазин с кнопками прокачки */
-    #shop {
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-bottom: 30px;
-    }
-    .item {
-      background: rgba(15, 15, 20, 0.85);
-      border: 1px solid #00f0ff;
-      padding: 12px 15px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: 0.15s;
-    }
-    .item:hover:not(.lock) {
-      background: rgba(0, 240, 255, 0.15);
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-    }
-    .item:active:not(.lock) {
-      transform: scale(0.98);
-    }
-    /* Стиль, если не хватает очков */
-    .item.lock {
-      opacity: 0.45;
-      border-color: #555;
-      cursor: not-allowed;
-    }
-    .iname {
-      font-weight: bold;
-      color: #fff;
-      font-size: 16px;
-    }
-    .idesc {
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 4px;
-    }
-    .icost {
-      font-weight: bold;
-      color: #ff003c;
-      text-align: right;
-      font-size: 16px;
-    }
-    .ilvl {
-      font-size: 12px;
-      color: #00f0ff;
-      text-align: right;
-      margin-top: 4px;
-    }
-  </style>
-</head>
-<body>
-
-  <canvas id="c"></canvas>
-
-  <div id="score">0</div>
-  <div id="sub">КЛИК: +1 // АВТО: 0/СЕК</div>
-
-  <!-- Замени 🐷 на <img src="твоя_картинка.png" width="150"> если нужно -->
-  <div id="pig-btn" onclick="tap(event)">🐷</div>
-
-  <!-- Сюда скрипт автоматически добавит кнопки прокачки -->
-  <div id="shop"></div>
-
   <script>
     let pts = Number(localStorage.getItem('hp_pts')) || 0;
     let saved = localStorage.getItem('hp_upg');
-    let upg = saved ? JSON.parse(saved) :;
+    let upg = saved ? JSON.parse(saved) : new Array(0, 0, 0, 0);
     let actx = null;
 
-    const items = [
+    const items = new Array(
       { name: "ЖЁЛУДЬ_01", desc: "+1 к силе клика", base: 15 },
       { name: "RGB_КОРЫТО", desc: "+2 очка в секунду", base: 50 },
       { name: "КИБЕР_ПЯТАК", desc: "+6 к силе клика", base: 180 },
       { name: "ФЕРМА_ХРЯКОВ", desc: "+15 очков в секунду", base: 500 }
-    ];
+    );
 
     function getStats() {
-      const u0 = upg[0] || 0;
-      const u1 = upg[1] || 0;
-      const u2 = upg[2] || 0;
-      const u3 = upg[3] || 0;
+      const u0 = upg.at(0) || 0;
+      const u1 = upg.at(1) || 0;
+      const u2 = upg.at(2) || 0;
+      const u3 = upg.at(3) || 0;
       return {
         click: 1 + u0 * 1 + u2 * 6,
         perSec: u1 * 2 + u3 * 15
@@ -168,7 +23,7 @@
     }
 
     function getCost(i) {
-      return Math.floor(items[i].base * Math.pow(1.45, upg[i] || 0));
+      return Math.floor(items.at(i).base * Math.pow(1.45, upg.at(i) || 0));
     }
 
     function playTapSound(isBuy) {
@@ -211,7 +66,7 @@
       el.style.left = (e.clientX - 15) + 'px';
       el.style.top = (e.clientY - 20) + 'px';
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 750);
+      setTimeout(function() { el.remove(); }, 750);
 
       saveAndDraw();
     }
@@ -220,7 +75,7 @@
       const cost = getCost(i);
       if (pts < cost) return;
       pts -= cost;
-      upg[i] = (upg[i] || 0) + 1;
+      upg.splice(i, 1, (upg.at(i) || 0) + 1);
       playTapSound(true);
       saveAndDraw();
     }
@@ -234,30 +89,21 @@
       document.getElementById('sub').textContent = 'КЛИК: +' + st.click + ' // АВТО: ' + st.perSec + '/СЕК';
 
       const box = document.getElementById('shop');
+      if (!box) return;
       box.innerHTML = '';
 
       for (let i = 0; i < items.length; i++) {
-        const it = items[i];
+        const it = items.at(i);
         const cost = getCost(i);
         const d = document.createElement('div');
         d.className = 'item' + (pts < cost ? ' lock' : '');
-        d.onclick = () => buy(i);
-        d.innerHTML = `
-          <div>
-            <div class="iname">${it.name}</div>
-            <div class="idesc">${it.desc}</div>
-          </div>
-          <div>
-            <div class="icost">${cost}</div>
-            <div class="ilvl">УР. ${upg[i] || 0}</div>
-          </div>
-        `;
+        d.onclick = function() { buy(i); };
+        d.innerHTML = '<div><div class="iname">' + it.name + '</div><div class="idesc">' + it.desc + '</div></div><div><div class="icost">' + cost + '</div><div class="ilvl">УР. ' + (upg.at(i) || 0) + '</div></div>';
         box.appendChild(d);
       }
     }
 
-    // Автоклик раз в 0.1 секунды
-    setInterval(() => {
+    setInterval(function() {
       const st = getStats();
       if (st.perSec > 0) {
         pts += st.perSec / 10;
@@ -265,41 +111,37 @@
       }
     }, 100);
 
-    // Анимация фона
     const c = document.getElementById('c');
-    const x = c.getContext('2d');
-    let cols = [];
+    if (c) {
+      const x = c.getContext('2d');
+      let cols = new Array();
 
-    function rsz() {
-      c.width = window.innerWidth;
-      c.height = window.innerHeight;
-      cols = [];
-      for (let i = 0; i < c.width / 18; i++) {
-        cols.push(Math.random() * c.height);
+      function rsz() {
+        c.width = innerWidth;
+        c.height = innerHeight;
+        cols = new Array();
+        for (let i = 0; i < c.width / 18; i++) cols.push(Math.random() * c.height);
       }
-    }
 
-    window.onresize = rsz;
-    rsz();
+      window.onresize = rsz;
+      rsz();
 
-    function rain() {
-      requestAnimationFrame(rain);
-      x.fillStyle = 'rgba(5, 5, 5, 0.3)';
-      x.fillRect(0, 0, c.width, c.height);
-      x.font = '14px monospace';
-
-      for (let i = 0; i < cols.length; i++) {
-        x.fillStyle = Math.random() > 0.9 ? '#ff003c' : '#00f0ff';
-        x.fillText(Math.random() > 0.5 ? '1' : '0', i * 18, cols[i]);
-        cols[i] += 16;
-        if (cols[i] > c.height && Math.random() > 0.95) {
-          cols[i] = 0;
+      function rain() {
+        requestAnimationFrame(rain);
+        x.fillStyle = 'rgba(5,5,5,0.3)';
+        x.fillRect(0, 0, c.width, c.height);
+        x.font = '14px monospace';
+        for (let i = 0; i < cols.length; i++) {
+          x.fillStyle = Math.random() > 0.9 ? '#ff003c' : '#00f0ff';
+          x.fillText(Math.random() > 0.5 ? '1' : '0', i * 18, cols.at(i));
+          cols.splice(i, 1, cols.at(i) + 16);
+          if (cols.at(i) > c.height && Math.random() > 0.95) cols.splice(i, 1, 0);
         }
       }
+      rain();
     }
 
     saveAndDraw();
-    rain();
   </script>
 </body>
 </html>
