@@ -2,119 +2,104 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>HOLD_10S // RGB_PIG</title>
+<title>HRYAK_ANIME // 01</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050505;color:#fff;font-family:'Courier New',monospace;height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;user-select:none}
-.scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px);pointer-events:none;z-index:30}
-#btn{position:relative;z-index:15;padding:26px 55px;font-size:26px;font-weight:900;font-family:inherit;letter-spacing:5px;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff;transition:transform .1s}
-#btn.active{animation:g .15s infinite;background:#180008}
-#bar-wrap{position:fixed;bottom:0;left:0;width:100%;height:14px;background:#111;z-index:25;border-top:1px solid #333}
-#bar{width:0%;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff);box-shadow:0 0 15px #ff003c}
-#scare{position:fixed;inset:0;background:#ff003c;z-index:40;display:none;justify-content:center;align-items:center;font-size:12vw;font-weight:900;color:#000;text-shadow:-8px 0 #00f0ff,8px 0 #fff}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:5}
+body{background:#050505;color:#fff;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;user-select:none}
+.scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);pointer-events:none;z-index:50}
+#intro{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:20}
+#btn{padding:26px 50px;font-size:24px;font-weight:900;font-family:inherit;letter-spacing:4px;color:#fff;background:#0a0a0a;border:2px solid #fff;cursor:pointer;box-shadow:-5px 0 0 #ff003c,5px 0 0 #00f0ff;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
+#btn.act{animation:g .15s infinite;background:#1a0008}
+#bw{position:fixed;bottom:0;left:0;width:100%;height:14px;background:#111;z-index:25}
+#bar{width:0;height:100%;background:linear-gradient(90deg,#ff003c,#00f0ff)}
+#scare{position:fixed;inset:0;background:#ff003c;z-index:60;display:none;justify-content:center;align-items:center;font-size:11vw;font-weight:900;color:#000;text-shadow:-8px 0 #00f0ff,8px 0 #fff}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1}
+#pig-bg{position:fixed;inset:0;display:none;justify-content:center;align-items:center;z-index:2;pointer-events:none;opacity:.32;animation:pig 4s infinite}
+#pig-bg svg{width:min(82vw,620px);filter:drop-shadow(-7px 0 0 #ff003c) drop-shadow(7px 0 0 #00f0ff)}
+#main{position:relative;z-index:10;display:none;max-width:1100px;margin:0 auto;padding:30px 20px 60px}
+.top{display:flex;flex-wrap:wrap;gap:15px;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff;padding-bottom:15px;box-shadow:0 4px 0 #ff003c}
+h1{font-size:26px;letter-spacing:3px;text-shadow:-2px 0 #ff003c,2px 0 #00f0ff}
+#q{background:#0a0a0a;border:2px solid #fff;color:#fff;padding:10px 14px;font-family:inherit;font-size:15px;width:260px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff;outline:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.card{background:rgba(10,10,12,.86);border:1px solid #444;padding:16px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:-4px 0 0 #ff003c,4px 0 0 #00f0ff;transition:.15s}
+.card:hover{transform:translateY(-4px);border-color:#fff}
+.tag{font-size:11px;color:#00f0ff;margin-bottom:6px}
+.ttl{font-size:18px;font-weight:900;margin-bottom:10px;line-height:1.25}
+.rt{display:flex;gap:8px;margin-bottom:14px;font-size:13px;font-weight:700}
+.rt span{padding:3px 7px;background:#16161a;border:1px solid #333}
+.sh{color:#00ff88}.kp{color:#ffaa00}
+.go{display:block;text-align:center;padding:10px;background:#fff;color:#000;font-weight:900;text-decoration:none;letter-spacing:2px;box-shadow:-3px 0 0 #ff003c,3px 0 0 #00f0ff}
+.go:hover{background:#ff003c;color:#fff}
 @keyframes g{0%{box-shadow:-7px 0 0 #ff003c,7px 0 0 #00f0ff}50%{box-shadow:7px -3px 0 #00ff41,-7px 3px 0 #ff003c}100%{box-shadow:-6px 2px 0 #00f0ff,6px -2px 0 #ff003c}}
+@keyframes pig{0%,94%,100%{transform:translate(0) scale(1)}96%{transform:translate(-6px,2px) scale(1.02)}98%{transform:translate(6px,-2px) scale(.99)}}
 </style>
 </head>
 <body>
 <div class="scan"></div>
-<button id="btn">ДЕРЖИ КУРСОР 10 СЕК</button>
-<div id="bar-wrap"><div id="bar"></div></div>
-<div id="scare">01_ХРЮ_01</div>
+<div id="intro"><button id="btn">ДЕРЖИ КУРСОР 10 СЕК</button><div id="bw"><div id="bar"></div></div></div>
+<div id="scare">01_ХРЯК_01</div>
 <canvas id="c"></canvas>
+<div id="pig-bg">
+<svg viewBox="0 0 320 300">
+<path d="M125 46 Q160 32 195 46 L190 56 Q160 46 130 56 Z" fill="#2b1b17"/>
+<path d="M125 50 C92 75 65 140 68 205 C71 255 115 274 165 274 C225 274 268 248 265 190 C262 135 225 72 195 50 Z" fill="#e5a996" stroke="#2b1b17" stroke-width="4"/>
+<path d="M88 185 Q140 205 235 175 M82 212 Q145 234 248 202 M90 238 Q155 258 240 230" fill="none" stroke="#9e6252" stroke-width="3.5" stroke-linecap="round"/>
+<circle cx="136" cy="84" r="5" fill="#1a1110"/><circle cx="138" cy="82" r="1.5" fill="#fff"/>
+<circle cx="182" cy="84" r="5" fill="#1a1110"/><circle cx="184" cy="82" r="1.5" fill="#fff"/>
+<ellipse cx="122" cy="142" rx="48" ry="36" fill="#f2b5a7" stroke="#2b1b17" stroke-width="4"/>
+<ellipse cx="104" cy="142" rx="9" ry="13" fill="#4a2520"/><ellipse cx="138" cy="142" rx="9" ry="13" fill="#4a2520"/>
+<path d="M108 266 L104 286 L116 286 L118 268 M212 264 L216 285 L228 285 L224 262" fill="#c78876" stroke="#2b1b17" stroke-width="3"/>
+</svg>
+</div>
+<div id="main">
+<div class="top"><h1>HRYAK_ARCHIVE // ANIME</h1><input id="q" placeholder="Поиск аниме..." oninput="render()"></div>
+<div class="grid" id="grid"></div>
+</div>
 <script>
-const btn=document.getElementById('btn'),bar=document.getElementById('bar'),wrap=document.getElementById('bar-wrap'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d');
-let w,ht,hold=0,hover=0,last=0,done=0,actx,pts=[],cols=[],rx=.2,ry=.6,trx=.2,try_=.6,drag=0,pm={x:0,y:0},prog=0;
-const tokens=['0','1','01','10','ERR','SYS','0x1','PIG','NULL','110'];
-
+const DB=[
+{t:"Атака титанов",g:"Экшен / Драма",sh:"8.82",kp:"8.7"},
+{t:"Фрирен, провожающая в последний путь",g:"Фэнтези / Приключения",sh:"8.84",kp:"8.8"},
+{t:"Монолог фармацевта",g:"Детектив / Исторический",sh:"8.83",kp:"8.8"},
+{t:"Дандадан",g:"Мистика / Экшен",sh:"8.39",kp:"8.6"},
+{t:"Поднятие уровня в одиночку",g:"Экшен / Фэнтези",sh:"8.33",kp:"8.4"},
+{t:"Тетрадь смерти",g:"Триллер / Детектив",sh:"8.62",kp:"8.6"},
+{t:"Стальной алхимик: Братство",g:"Фэнтези / Приключения",sh:"8.99",kp:"8.7"},
+{t:"Врата Штейна",g:"Фантастика / Триллер",sh:"8.84",kp:"8.5"},
+{t:"Код Гиас: Восставший Лелуш",g:"Меха / Психология",sh:"8.79",kp:"8.5"},
+{t:"Человек-бензопила",g:"Экшен / Ужасы",sh:"8.45",kp:"8.5"},
+{t:"Кайдзю № 8",g:"Фантастика / Сёнэн",sh:"8.13",kp:"8.0"},
+{t:"Синяя тюрьма: Блю Лок",g:"Спорт / Триллер",sh:"8.25",kp:"8.6"}
+];
+const btn=document.getElementById('btn'),bar=document.getElementById('bar'),intro=document.getElementById('intro'),scare=document.getElementById('scare'),c=document.getElementById('c'),x=c.getContext('2d'),pig=document.getElementById('pig-bg'),main=document.getElementById('main'),grid=document.getElementById('grid');
+let w,ht,hold=0,hov=0,last=0,done=0,actx,cols=[];
 function rsz(){w=c.width=innerWidth;ht=c.height=innerHeight;cols=Array(Math.floor(w/18)).fill(0).map(()=>Math.random()*ht)}
 addEventListener('resize',rsz);rsz();
-
-function initAudio(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}
-addEventListener('pointerdown',initAudio);
-
-btn.addEventListener('pointerenter',()=>{initAudio();hover=1;btn.classList.add('active')});
-btn.addEventListener('pointerleave',()=>{if(!done){hover=0;hold=0;bar.style.width='0%';btn.classList.remove('active')}});
-
-function playScreamer(){
-  initAudio();
-  const t=actx.currentTime,g=actx.createGain();
-  g.gain.setValueAtTime(0.9,t);g.gain.exponentialRampToValueAtTime(0.01,t+1.1);
-  g.connect(actx.destination);
-  [110,145,880,1320,2400].forEach(f=>{
-    const o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f,t);
-    o.frequency.linearRampToValueAtTime(f*1.8,t+0.2);o.frequency.linearRampToValueAtTime(f*0.4,t+1.0);
-    o.connect(g);o.start(t);o.stop(t+1.1);
-  });
+function aud(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}
+addEventListener('pointerdown',aud);
+btn.addEventListener('pointerenter',()=>{aud();hov=1;btn.classList.add('act')});
+btn.addEventListener('pointerleave',()=>{if(!done){hov=0;hold=0;bar.style.width='0%';btn.classList.remove('act')}});
+function scream(){
+aud();const t=actx.currentTime,g=actx.createGain();g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.01,t+1.1);g.connect(actx.destination);
+[160,390,780,1450].forEach(f=>{const o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.linearRampToValueAtTime(f*1.8,t+.2);o.frequency.linearRampToValueAtTime(f*.4,t+1);o.connect(g);o.start(t);o.stop(t+1.1)});
 }
-
-function pt(X,Y,Z,p){return{x:X,y:Y,z:Z,sx:(Math.random()-.5)*14,sy:(Math.random()-.5)*14,sz:(Math.random()-.5)*14,ch:Math.random()>.5?'1':'0',p,sp:.03+Math.random()*.08}}
-function gen(){
-  const a=[];
-  const el=(cx,cy,cz,ax,ay,az,n,p)=>{for(let i=0;i<n;i++){const u=Math.random()*6.283,v=Math.acos(2*Math.random()-1),s=.88+Math.random()*.12;a.push(pt(cx+ax*s*Math.sin(v)*Math.cos(u),cy+ay*s*Math.sin(v)*Math.sin(u),cz+az*s*Math.cos(v),p))}};
-  const cy=(x1,y1,z1,x2,y2,z2,r,n,p)=>{for(let i=0;i<n;i++){const t=Math.random(),g=Math.random()*6.283,d=r*(.85+Math.random()*.15);a.push(pt(x1+(x2-x1)*t+Math.cos(g)*d,y1+(y2-y1)*t,z1+(z2-z1)*t+Math.sin(g)*d,p))}};
-  el(0,0,0,1.45,.92,.88,900,'b');el(1.38,-.18,0,.68,.62,.6,450,'h');el(2.02,-.1,0,.22,.27,.29,160,'s');
-  el(1.3,-.78,.36,.24,.32,.08,90,'e');el(1.3,-.78,-.36,.24,.32,.08,90,'e');
-  cy(.78,.55,.44,.78,1.38,.44,.2,100,'l');cy(.78,.55,-.44,.78,1.38,-.44,.2,100,'l');
-  cy(-.82,.55,.44,-.82,1.38,.44,.2,100,'l');cy(-.82,.55,-.44,-.82,1.38,-.44,.2,100,'l');
-  for(let i=0;i<80;i++){const t=i/80,g=t*11;a.push(pt(-1.42-t*.42,-.25+Math.sin(g)*.16-t*.15,Math.cos(g)*.16,'t'))}
-  return a.sort(()=>Math.random()-.5);
+function render(){
+const v=document.getElementById('q').value.toLowerCase();
+grid.innerHTML=DB.filter(a=>a.t.toLowerCase().includes(v)).map(a=>`<div class="card"><div><div class="tag">${a.g}</div><div class="ttl">${a.t}</div></div><div><div class="rt"><span class="sh">SHIKI ★ ${a.sh}</span><span class="kp">КП ★ ${a.kp}</span></div><a class="go" target="_blank" href="https://yandex.ru{encodeURIComponent(a.t+' смотреть онлайн аниме')}">СМОТРЕТЬ</a></div></div>`).join('');
 }
-
-function trigger(){
-  done=1;btn.style.display='none';wrap.style.display='none';
-  scare.style.display='flex';playScreamer();
-  let fl=0;const iv=setInterval(()=>{scare.style.background=fl++%2?'#000':'#ff003c';scare.style.color=fl%2?'#ff003c':'#fff'},50);
-  setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pts=gen()},750);
+function go(){
+done=1;intro.style.display='none';scare.style.display='flex';scream();
+let f=0;const iv=setInterval(()=>{scare.style.background=f++%2?'#000':'#ff003c';scare.style.color=f%2?'#ff003c':'#fff'},50);
+setTimeout(()=>{clearInterval(iv);scare.style.display='none';c.style.display='block';pig.style.display='flex';main.style.display='block';render()},750);
 }
-
-addEventListener('pointerdown',e=>{drag=1;pm={x:e.clientX,y:e.clientY}});
-addEventListener('pointerup',()=>drag=0);
-addEventListener('pointermove',e=>{if(!drag)return;try_+=(e.clientX-pm.x)*.008;trx+=(e.clientY-pm.y)*.008;pm={x:e.clientX,y:e.clientY}});
-
 function loop(now){
-  requestAnimationFrame(loop);
-  const dt=now-last;last=now;
-  if(hover&&!done){
-    hold+=dt;const pct=Math.min(100,(hold/10000)*100);
-    bar.style.width=pct+'%';
-    btn.textContent='ДЕРЖИ: '+Math.max(0,(10-hold/1000)).toFixed(1)+'с';
-    if(hold>=10000)trigger();
-  }else if(!done){btn.textContent='ДЕРЖИ КУРСОР 10 СЕК'}
-  if(!done)return;
-
-  x.fillStyle='rgba(5,5,5,0.32)';x.fillRect(0,0,w,ht);
-  x.font='14px "Courier New",monospace';
-  for(let i=0;i<cols.length;i++){
-    const txt=tokens[Math.floor(Math.random()*tokens.length)];
-    x.fillStyle=Math.random()>.92?'rgba(255,0,60,0.45)':'rgba(0,240,255,0.22)';
-    x.fillText(txt,i*18,cols[i]);
-    cols[i]+=16;if(cols[i]>ht&&Math.random()>.95)cols[i]=0;
-  }
-
-  if(prog<1)prog=Math.min(1,prog+.018);
-  const ez=1-Math.pow(1-prog,3);
-  if(!drag)try_+=.008;rx+=(trx-rx)*.1;ry+=(try_-ry)*.1;
-  const cY=Math.cos(ry),sY=Math.sin(ry),cX=Math.cos(rx),sX=Math.sin(rx),bs=Math.min(w,ht)*.26,pr=[],gl=Math.random()>.95,sp=gl?(Math.random()*15+4):2.5;
-  for(let i=0;i<pts.length;i++){
-    const p=pts[i];if(Math.random()<p.sp)p.ch=p.ch==='0'?'1':'0';
-    const cx=p.sx+(p.x-p.sx)*ez,cy=p.sy+(p.y-p.sy)*ez,cz=p.sz+(p.z-p.sz)*ez;
-    const x1=cx*cY-cz*sY,z1=cz*cY+cx*sY,y2=cy*cX-z1*sX,z2=z1*cX+cy*sX,sc=4.2/(4.2+z2);
-    pr.push({x:w/2+x1*bs*sc,y:ht/2+y2*bs*sc,z:z2,sc,ch:p.ch,p:p.p});
-  }
-  pr.sort((a,b)=>b.z-a.z);x.textAlign='center';
-  for(let i=0;i<pr.length;i++){
-    const t=pr[i];if(t.sc<=0)continue;
-    x.font='bold '+Math.max(8,Math.round(13*t.sc))+'px "Courier New",monospace';
-    const al=Math.max(.25,Math.min(1,(1.8-t.z)/2.5)),dx=t.x+((gl&&Math.sin(t.y*.1)>.7)?(Math.random()-.5)*25:0);
-    x.fillStyle='rgba(255,0,60,'+(al*.85)+')';x.fillText(t.ch,dx-sp*t.sc,t.y);
-    x.fillStyle='rgba(0,240,255,'+(al*.85)+')';x.fillText(t.ch,dx+sp*t.sc,t.y);
-    x.fillStyle=(t.p==='s'||t.p==='e')?'rgba(255,180,220,'+al+')':'rgba(255,255,255,'+al+')';
-    x.fillText(t.ch,dx,t.y);
-  }
+requestAnimationFrame(loop);const dt=now-last;last=now;
+if(hov&&!done){hold+=dt;bar.style.width=Math.min(100,hold/100)+'%';btn.textContent='ДЕРЖИ: '+Math.max(0,10-hold/1000).toFixed(1)+'с';if(hold>=10000)go()}
+else if(!done)btn.textContent='ДЕРЖИ КУРСОР 10 СЕК';
+if(!done)return;
+x.fillStyle='rgba(5,5,5,.3)';x.fillRect(0,0,w,ht);x.font='14px "Courier New",monospace';
+for(let i=0;i<cols.length;i++){x.fillStyle=Math.random()>.92?'rgba(255,0,60,.4)':'rgba(0,240,255,.22)';x.fillText(Math.random()>.5?'1':'0',i*18,cols[i]);cols[i]+=16;if(cols[i]>ht&&Math.random()>.95)cols[i]=0}
 }
 requestAnimationFrame(loop);
 </script>
 </body>
 </html>
-
