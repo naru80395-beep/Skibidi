@@ -52,7 +52,7 @@ canvas { position: fixed; inset: 0; display: none; z-index: 1; }
   <div class="top">
     <h2>HRYAK_ARCHIVE</h2>
     <div>
-      <input id="q" placeholder="One Piece..." onkeydown="if(event.key==='Enter')load()">
+      <input id="q" placeholder="One Piece, Ванпис..." onkeydown="if(event.key==='Enter')load()">
       <button id="sb" onclick="load()">НАЙТИ</button>
     </div>
   </div>
@@ -128,13 +128,27 @@ function go() {
 }
 </script>
 <script>
+const BACKUP = [
+  { t: "Ван-Пис (One Piece)", s: "8.72", e: "1100+ эп." },
+  { t: "Атака титанов (Attack on Titan)", s: "8.82", e: "89 эп." },
+  { t: "Магическая битва (Jujutsu Kaisen)", s: "8.62", e: "47 эп." },
+  { t: "Наруто: Ураганные хроники", s: "8.28", e: "500 эп." },
+  { t: "Блич: Тысячелетняя кровавая война", s: "8.99", e: "40 эп." },
+  { t: "Человек-бензопила (Chainsaw Man)", s: "8.45", e: "12 эп." },
+  { t: "Тетрадь смерти (Death Note)", s: "8.62", e: "37 эп." },
+  { t: "Поднятие уровня в одиночку", s: "8.33", e: "25 эп." }
+];
+
 async function load() {
   const q = document.getElementById('q').value.trim();
   const g = document.getElementById('grid');
   const st = document.getElementById('st');
   st.textContent = 'ЗАГРУЗКА...';
   g.innerHTML = '';
-  const u = q ? 'https://jikan.moe' + encodeURIComponent(q) : 'https://jikan.moe';
+  const map = { 'ванпис': 'One Piece', 'ван пис': 'One Piece', 'наруто': 'Naruto', 'блич': 'Bleach' };
+  const query = map[q.toLowerCase()] || q;
+  const base = 'https://jikan.moe';
+  const u = query ? base + 'anime?limit=16&q=' + encodeURIComponent(query) : base + 'top/anime?limit=16';
   try {
     const r = await fetch(u);
     const j = await r.json();
@@ -144,11 +158,22 @@ async function load() {
       const a = list[i];
       const d = document.createElement('div');
       d.className = 'card';
-      d.innerHTML = '<div><img class="poster" src="' + a.images.jpg.image_url + '"><div class="ttl">' + (a.title_english || a.title) + '</div></div><div><div class="rt"><span>★ ' + (a.score || '—') + '</span><span>' + (a.episodes || '?') + ' эп.</span></div><a class="go" target="_blank" href="https://shikimori.io' + encodeURIComponent(a.title) + '">СМОТРЕТЬ</a></div>';
+      const shiki = 'https://shikimori.io' + '?search=' + encodeURIComponent(a.title);
+      d.innerHTML = '<div><img class="poster" src="' + a.images.jpg.image_url + '"><div class="ttl">' + (a.title_english || a.title) + '</div></div><div><div class="rt"><span>★ ' + (a.score || '—') + '</span><span>' + (a.episodes || '?') + ' эп.</span></div><a class="go" target="_blank" href="' + shiki + '">СМОТРЕТЬ</a></div>';
       g.appendChild(d);
     }
-  } catch (e) {
-    st.textContent = 'ОШИБКА СЕТИ';
+    if (list.length) return;
+  } catch (e) {}
+  st.textContent = 'ЛОКАЛЬНЫЙ АРХИВ';
+  const filtered = q ? BACKUP.filter(function(x) { return x.t.toLowerCase().indexOf(q.toLowerCase()) !== -1; }) : BACKUP;
+  const show = filtered.length ? filtered : BACKUP;
+  for (let i = 0; i < show.length; i++) {
+    const b = show[i];
+    const d = document.createElement('div');
+    d.className = 'card';
+    const shiki = 'https://shikimori.io' + '?search=' + encodeURIComponent(b.t);
+    d.innerHTML = '<div><div class="ttl" style="padding:20px 0;color:#0ff">' + b.t + '</div></div><div><div class="rt"><span>★ ' + b.s + '</span><span>' + b.e + '</span></div><a class="go" target="_blank" href="' + shiki + '">СМОТРЕТЬ</a></div>';
+    g.appendChild(d);
   }
 }
 
@@ -163,12 +188,9 @@ function rain() {
     x.fillStyle = Math.random() > 0.9 ? '#ff003c' : '#00f0ff';
     x.fillText(Math.random() > 0.5 ? '1' : '0', i * 18, cols[i]);
     cols[i] += 16;
-    if (cols[i] > c.height && Math.random() > 0.95) {
-      cols[i] = 0;
-    }
+    if (cols[i] > c.height && Math.random() > 0.95) cols[i] = 0;
   }
 }
 </script>
 </body>
 </html>
-
